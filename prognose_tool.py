@@ -361,7 +361,7 @@ Echtzeit-Überwachung von Nachfrage, Bestand und Operationen | KI-gestützte Pro
 # ══════════════════════════════════════════════════════════════════════════════
 # EXECUTIVE ALERT SECTION (TOP PRIORITY)
 # ══════════════════════════════════════════════════════════════════════════════
-st.markdown("### ⚠️ Handlungsbedarf & Alerts")
+st.markdown("### Handlungsbedarf & Alerts")
 
 alert_col1, alert_col2, alert_col3 = st.columns(3)
 
@@ -434,7 +434,7 @@ st.markdown(f"""
 # ══════════════════════════════════════════════════════════════════════════════
 # KEY METRICS ROW
 # ══════════════════════════════════════════════════════════════════════════════
-st.markdown("### 📊 Key Performance Indicators")
+st.markdown("### Key Performance Indicators")
 m1, m2, m3, m4, m5 = st.columns(5)
 
 total_bestand = df_produkte['Bestand'].sum()
@@ -492,7 +492,7 @@ st.markdown("---")
 # ══════════════════════════════════════════════════════════════════════════════
 # ABC ANALYSIS CHART
 # ══════════════════════════════════════════════════════════════════════════════
-st.markdown("### 📈 ABC-Analyse: Produktmix & Umsatzkonzentration")
+st.markdown("### ABC-Analyse: Produktmix & Umsatzkonzentration")
 
 abc_counts = df_abc['ABC_Klasse'].value_counts().reindex(['A', 'B', 'C'])
 abc_umsatz = df_abc.groupby('ABC_Klasse')['Umsatz_7T'].sum().reindex(['A', 'B', 'C'])
@@ -537,7 +537,7 @@ st.markdown("---")
 # ══════════════════════════════════════════════════════════════════════════════
 # INVENTORY DETAIL TABLE
 # ══════════════════════════════════════════════════════════════════════════════
-st.markdown("### 📦 Detaillierte Bestandsverwaltung")
+st.markdown("### Detaillierte Bestandsverwaltung")
 
 # Filter products
 df_filtered = df_produkte[df_produkte['Kategorie'].isin(filter_kategorie)].copy()
@@ -628,7 +628,7 @@ st.markdown("---")
 # ══════════════════════════════════════════════════════════════════════════════
 # TEMPERATURE REQUIREMENTS DASHBOARD
 # ══════════════════════════════════════════════════════════════════════════════
-st.markdown("### 🌡️ Temperaturzonen & Frische-Management")
+st.markdown("### Temperaturzonen & Frische-Management")
 
 temp_summ = df_produkte.groupby('Temp_Anforderung').agg({
     'Bestand': 'sum',
@@ -661,7 +661,7 @@ st.markdown("---")
 # ══════════════════════════════════════════════════════════════════════════════
 # OPERATIONAL SCHEDULE
 # ══════════════════════════════════════════════════════════════════════════════
-st.markdown("### 📅 Operativer Zeitplan – 7-Tage-Nachfrageprognose")
+st.markdown("### Operativer Zeitplan – 7-Tage-Nachfrageprognose")
 st.dataframe(df_proc, use_container_width=True)
 
 st.markdown('<div style="text-align:center; color:#4B5563; font-size:0.7rem; margin-top:4rem;">OpenBrain Intelligence Unit · v5.0 Premium | Supermarket Inventory & Demand Intelligence</div>', 
