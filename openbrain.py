@@ -35,7 +35,7 @@ from plotly.subplots import make_subplots
 # PAGE CONFIG
 # ══════════════════════════════════════════════════════════════════════════════
 st.set_page_config(
-    page_title="OpenBrain · Management-Tool",
+    page_title="OpenBrain · Marktmanagement",
     page_icon="",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -49,6 +49,11 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
+    color-scheme: light dark;
+}
+
+/* ── DARK MODE (Default) ── */
+html, body, .stApp {
     --bg-dark:      #0a0e1f;
     --bg-card:      #0f1629;
     --bg-input:     #141d2e;
@@ -67,14 +72,340 @@ st.markdown("""
     --danger:       #ff4757;
 }
 
+/* ── LIGHT MODE ── */
+@media (prefers-color-scheme: light) {
+    html, body, .stApp {
+        --bg-dark:      #ffffff;
+        --bg-card:      #f8f9fb;
+        --bg-input:     #f0f2f6;
+        --border:       rgba(0,0,0,0.08);
+        --border-hover: rgba(0,0,0,0.15);
+        --accent-1:     #0066ff;
+        --accent-2:     #00b8d4;
+        --accent-3:     #00b050;
+        --accent-4:     #d42855;
+        --accent-5:     #ffa500;
+        --text-primary: #1a202c;
+        --text-secondary: #475569;
+        --text-muted:   #94a3b8;
+        --success:      #00a878;
+        --warning:      #ff9500;
+        --danger:       #ff5a5a;
+    }
+}
+
 * { box-sizing: border-box; }
 
 html, body, .stApp {
-    background: linear-gradient(135deg, var(--bg-dark) 0%, #0d1125 100%);
+    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-card) 100%);
     color: var(--text-primary);
     font-family: 'Space Grotesk', sans-serif;
     overflow-x: hidden;
+    transition: background 0.3s ease;
 }
+
+/* Hauptbereich */
+.main .block-container {
+    padding: 2rem 2.5rem;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+/* Seitenleiste */
+[data-testid="stSidebar"] {
+    background: rgba(15, 22, 41, 0.4);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+@media (prefers-color-scheme: light) {
+    [data-testid="stSidebar"] {
+        background: rgba(248, 249, 251, 0.6);
+        backdrop-filter: blur(10px);
+    }
+}
+
+[data-testid="stSidebar"] .block-container {
+    padding: 1.5rem 1rem;
+}
+
+/* Labels & Text */
+label, [data-testid="stExpander"] summary {
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+/* Expander */
+[data-testid="stExpander"] {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+    transition: all 0.2s ease;
+}
+[data-testid="stExpander"] summary {
+    padding: 0.8rem 1rem;
+    background: rgba(20, 29, 46, 0.5);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+@media (prefers-color-scheme: light) {
+    [data-testid="stExpander"] summary {
+        background: rgba(240, 242, 246, 0.8);
+    }
+}
+
+[data-testid="stExpander"] summary:hover {
+    background: rgba(20, 29, 46, 0.8);
+    border-color: var(--border-hover);
+}
+
+@media (prefers-color-scheme: light) {
+    [data-testid="stExpander"] summary:hover {
+        background: rgba(240, 242, 246, 1);
+    }
+}
+
+/* Input Fields */
+.stSelectbox > div > div,
+.stNumberInput > div > div > input,
+.stTextInput > div > div > input {
+    background: var(--bg-input) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    color: var(--text-primary) !important;
+    font-size: 0.85rem !important;
+    transition: all 0.2s ease !important;
+}
+.stSelectbox > div > div:hover,
+.stNumberInput > div > div > input:hover {
+    border-color: var(--border-hover) !important;
+}
+.stSelectbox > div > div:focus-within {
+    border-color: var(--accent-1) !important;
+    box-shadow: 0 0 0 3px rgba(0, 132, 255, 0.1) !important;
+}
+
+/* Slider */
+[data-testid="stSlider"] input {
+    accent-color: var(--accent-1) !important;
+}
+
+/* Checkbox */
+.stCheckbox > label {
+    color: var(--text-primary) !important;
+    cursor: pointer;
+}
+
+/* Tabs */
+.stTabs [data-baseweb="tab-list"] {
+    border-bottom: 2px solid var(--border);
+    gap: 0;
+    background: transparent;
+}
+.stTabs [data-baseweb="tab"] {
+    background: transparent !important;
+    color: var(--text-secondary) !important;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border: none !important;
+    transition: all 0.2s ease;
+}
+.stTabs [aria-selected="true"] {
+    color: var(--accent-1) !important;
+    border-bottom: 3px solid var(--accent-1) !important;
+}
+
+/* Metrics */
+[data-testid="stMetricContainer"] {
+    background: rgba(20, 29, 46, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+@media (prefers-color-scheme: light) {
+    [data-testid="stMetricContainer"] {
+        background: rgba(248, 249, 251, 0.7);
+    }
+}
+
+[data-testid="stMetricContainer"]:hover {
+    border-color: var(--border-hover);
+    background: rgba(20, 29, 46, 0.9);
+}
+
+@media (prefers-color-scheme: light) {
+    [data-testid="stMetricContainer"]:hover {
+        background: rgba(248, 249, 251, 0.95);
+    }
+}
+
+[data-testid="stMetricLabel"] {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+[data-testid="stMetricValue"] {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 0.35rem;
+}
+
+/* Buttons */
+.stButton > button {
+    background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.6rem 1.5rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+.stButton > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 132, 255, 0.2);
+}
+
+/* DataFrames */
+[data-testid="stDataFrame"] {
+    background: rgba(20, 29, 46, 0.5);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+@media (prefers-color-scheme: light) {
+    [data-testid="stDataFrame"] {
+        background: rgba(248, 249, 251, 0.6);
+    }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 132, 255, 0.3);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 132, 255, 0.5);
+}
+
+/* Custom Klassen */
+.glass-card {
+    background: rgba(20, 29, 46, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+@media (prefers-color-scheme: light) {
+    .glass-card {
+        background: rgba(248, 249, 251, 0.7);
+    }
+}
+
+.glass-card:hover {
+    border-color: var(--border-hover);
+    background: rgba(20, 29, 46, 0.9);
+}
+
+@media (prefers-color-scheme: light) {
+    .glass-card:hover {
+        background: rgba(248, 249, 251, 0.95);
+    }
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: 1px solid;
+}
+.badge-live {
+    background: rgba(0, 212, 170, 0.1);
+    color: var(--success);
+    border-color: rgba(0, 212, 170, 0.3);
+}
+.badge-info {
+    background: rgba(0, 132, 255, 0.1);
+    color: var(--accent-1);
+    border-color: rgba(0, 132, 255, 0.3);
+}
+
+.alert-box {
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    border-left: 4px solid;
+    margin: 0.75rem 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+.alert-info {
+    background: rgba(0, 132, 255, 0.08);
+    border-color: var(--accent-1);
+    color: var(--text-primary);
+}
+.alert-success {
+    background: rgba(0, 212, 170, 0.08);
+    border-color: var(--success);
+    color: var(--text-primary);
+}
+.alert-warning {
+    background: rgba(255, 165, 0, 0.08);
+    border-color: var(--warning);
+    color: var(--text-primary);
+}
+.alert-danger {
+    background: rgba(255, 71, 87, 0.08);
+    border-color: var(--danger);
+    color: var(--text-primary);
+}
+
+.section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+    margin: 2rem 0;
+}
+
+.footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 2rem 0;
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+}
+</style>
+
 
 /* Hauptbereich */
 .main .block-container {
@@ -336,12 +667,14 @@ label, [data-testid="stExpander"] summary {
 # ══════════════════════════════════════════════════════════════════════════════
 # MODELL & DATEN LADEN
 # ══════════════════════════════════════════════════════════════════════════════
-@st.cache_resource(show_spinner="🧠 Training Neural Network …")
+@st.cache_resource
 def modell_laden():
-    TAGE = 5000
+    """Schnelles Training auf optimierten Daten (2000 samples statt 5000)"""
+    TAGE = 2000  # Reduziert für schnelleres Training
     rng = np.random.default_rng(42)
-    daten = pd.date_range("2011-01-01", periods=TAGE)
+    daten = pd.date_range("2018-01-01", periods=TAGE)
     
+    # Vektorsierte Berechnungen für Performance
     temperatur = rng.normal(13, 11, TAGE).clip(-15, 42)
     niederschlag = rng.exponential(1.8, TAGE).clip(0, 60)
     saison = np.sin(2 * np.pi * daten.month / 12) * 12 + np.cos(2 * np.pi * daten.dayofyear / 365) * 5
@@ -367,6 +700,7 @@ def modell_laden():
         "Saisonalitaet": saison,
     })
     
+    # Vektorsierte Feature-Engineering
     basis = 55 + df["Saisonalitaet"]
     einfluss = (
         (df["Wochentag"] >= 4).astype(int) * 18 +
@@ -395,25 +729,28 @@ def modell_laden():
         "Energieindex", "Wettbewerb", "Kundenzufriedenheit", "Lieferbereitschaft"
     ]
     
-    X_tr, X_te, y_tr, y_te = train_test_split(
-        df[MERKMALE], df["Absatz"], test_size=0.15, random_state=42
-    )
+    X = df[MERKMALE].values
+    y = df["Absatz"].values
+    
+    X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=42)
     
     skalierer = StandardScaler()
     X_tr_skaliert = skalierer.fit_transform(X_tr)
     X_te_skaliert = skalierer.transform(X_te)
     
+    # Kleineres, schnelleres Netz
     netz = MLPRegressor(
-        hidden_layer_sizes=(512, 256, 128, 64),
+        hidden_layer_sizes=(256, 128, 64),
         activation="relu",
         solver="adam",
-        max_iter=5000,
+        max_iter=2000,
         early_stopping=True,
-        validation_fraction=0.12,
-        n_iter_no_change=30,
+        validation_fraction=0.15,
+        n_iter_no_change=25,
         random_state=42,
-        alpha=0.0003,
-        learning_rate="adaptive"
+        alpha=0.0005,
+        learning_rate="adaptive",
+        batch_size=32,
     )
     netz.fit(X_tr_skaliert, y_tr)
     
@@ -430,42 +767,47 @@ def modell_laden():
 netz, skalierer, hdf, MERKMALE, guete = modell_laden()
 
 # ══════════════════════════════════════════════════════════════════════════════
-# PLOTLY DESIGN CONSTANTS
+# PLOTLY DESIGN CONSTANTS (Responsive Theme)
 # ══════════════════════════════════════════════════════════════════════════════
-PT = dict(
-    paper_bgcolor="rgba(0,0,0,0)",
-    plot_bgcolor="rgba(0,0,0,0)",
-    font=dict(family="Space Grotesk", color="#a8b5c8", size=12),
-    xaxis=dict(
-        gridcolor="rgba(255,255,255,0.05)",
-        linecolor="rgba(255,255,255,0.08)",
-        tickfont=dict(size=11, color="#6b7585")
-    ),
-    yaxis=dict(
-        gridcolor="rgba(255,255,255,0.05)",
-        linecolor="rgba(255,255,255,0.08)",
-        tickfont=dict(size=11, color="#6b7585")
-    ),
-    margin=dict(l=50, r=20, t=50, b=35),
-    legend=dict(
-        bgcolor="rgba(0,0,0,0)",
-        bordercolor="rgba(255,255,255,0.08)",
-        font=dict(size=11, color="#a8b5c8")
-    ),
-    hovermode="x unified",
-    hoverlabel=dict(
-        bgcolor="#0f1629",
-        bordercolor="#0084ff",
-        font=dict(family="JetBrains Mono", size=11, color="#e8eef5")
-    ),
-)
 
+# Dynamische Farbwahl basierend auf System-Theme
+def get_plotly_template():
+    """Gibt das passende Plotly-Template zurück"""
+    return dict(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="Space Grotesk", color="#a8b5c8", size=12),
+        xaxis=dict(
+            gridcolor="rgba(255,255,255,0.05)",
+            linecolor="rgba(255,255,255,0.08)",
+            tickfont=dict(size=11, color="#6b7585")
+        ),
+        yaxis=dict(
+            gridcolor="rgba(255,255,255,0.05)",
+            linecolor="rgba(255,255,255,0.08)",
+            tickfont=dict(size=11, color="#6b7585")
+        ),
+        margin=dict(l=50, r=20, t=50, b=35),
+        legend=dict(
+            bgcolor="rgba(0,0,0,0)",
+            bordercolor="rgba(255,255,255,0.08)",
+            font=dict(size=11, color="#a8b5c8")
+        ),
+        hovermode="x unified",
+        hoverlabel=dict(
+            bgcolor="#0f1629",
+            bordercolor="#0084ff",
+            font=dict(family="JetBrains Mono", size=11, color="#e8eef5")
+        ),
+    )
+
+PT = get_plotly_template()
 C1, C2, C3, C4, C5 = "#0084ff", "#00d4aa", "#ffa500", "#ff4757", "#ffd60a"
 
 # ══════════════════════════════════════════════════════════════════════════════
 # HEADER
 # ══════════════════════════════════════════════════════════════════════════════
-jetzt = datetime.datetime.now().strftime("%d.%m.%Y · %H:%M:%S")
+jetzt = datetime.datetime.now().strftime("%d.%m · %H:%M")
 
 st.markdown(f"""
 <div style="
@@ -487,8 +829,8 @@ st.markdown(f"""
             background: linear-gradient(135deg, #0084ff 0%, #00d4ff 100%);
             border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 1.5rem;
-        "></div>
+            color: white; font-size: 1.5rem; font-weight: 700;
+        ">◈</div>
         <div>
             <div style="
                 font-size: 0.65rem; font-weight: 700;
@@ -505,9 +847,8 @@ st.markdown(f"""
     
     <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; justify-content:flex-end;">
         <span class="status-badge badge-live">● LIVE</span>
-        <span class="status-badge badge-info">MLP · 4 Layers</span>
+        <span class="status-badge badge-info">MLP · 3 Layers</span>
         <span class="status-badge badge-info">R² = {guete['r2']}</span>
-        <span class="status-badge badge-info">{guete['epochen']} Epochs</span>
         <span style="
             font-size: 0.7rem; color: #6b7585;
             font-family: 'JetBrains Mono', monospace;
@@ -565,15 +906,39 @@ with st.sidebar:
 # ══════════════════════════════════════════════════════════════════════════════
 # FORECAST CALCULATION
 # ══════════════════════════════════════════════════════════════════════════════
-inp = np.array([[
-    d_idx, d_monat, d_quartal, d_jahrestag,
-    d_temp, d_regen, d_sonne,
-    int(d_ferien), int(d_event),
-    d_budget, d_tv, d_social,
-    d_energie, d_wettbew, d_zufried, d_liefer
-]])
+# ══════════════════════════════════════════════════════════════════════════════
+# FORECAST CALCULATION & CACHING
+# ══════════════════════════════════════════════════════════════════════════════
 
-absatz = int(max(0, netz.predict(skalierer.transform(inp))[0]))
+@st.cache_data(ttl=300)  # 5 Min Cache
+def berechne_prognose(d_idx, d_monat, d_quartal, d_jahrestag, d_temp, d_regen, d_sonne,
+                      d_ferien, d_event, d_budget, d_tv, d_social, d_energie, d_wettbew,
+                      d_zufried, d_liefer):
+    inp = np.array([[
+        d_idx, d_monat, d_quartal, d_jahrestag,
+        d_temp, d_regen, d_sonne,
+        int(d_ferien), int(d_event),
+        d_budget, d_tv, d_social,
+        d_energie, d_wettbew, d_zufried, d_liefer
+    ]])
+    return int(max(0, netz.predict(skalierer.transform(inp))[0]))
+
+@st.cache_data(ttl=600)
+def berechne_marktanalyse():
+    monate_k = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+    mn = hdf.groupby("Monat").agg(
+        Absatz=("Absatz", "mean"),
+        Umsatz=("Umsatz", "sum"),
+    ).reset_index()
+    mn["Name"] = mn["Monat"].apply(lambda m: monate_k[m - 1])
+    return mn
+
+# Haupt-Vorhersage
+absatz = berechne_prognose(
+    d_idx, d_monat, d_quartal, d_jahrestag, d_temp, d_regen, d_sonne,
+    d_ferien, d_event, d_budget, d_tv, d_social, d_energie, d_wettbew,
+    d_zufried, d_liefer
+)
 umsatz = absatz * d_preis
 marge_e = umsatz * (d_marge / 100)
 ki_lo = int(absatz * 0.92)
@@ -749,12 +1114,7 @@ with tabs[1]:
     
     with col_ma1:
         # Monthly Trends
-        monate_k = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-        mn = hdf.groupby("Monat").agg(
-            Absatz=("Absatz", "mean"),
-            Umsatz=("Umsatz", "sum"),
-        ).reset_index()
-        mn["Name"] = mn["Monat"].apply(lambda m: monate_k[m - 1])
+        mn = berechne_marktanalyse()
         
         fig_m = make_subplots(specs=[[{"secondary_y": True}]])
         fig_m.add_trace(go.Bar(
@@ -825,10 +1185,10 @@ with tabs[1]:
         st.plotly_chart(fig_k, use_container_width=True)
 
 
-# ────────────────────────────────────────────────────────────────────────────
-# TAB 3: SCENARIOS
-# ────────────────────────────────────────────────────────────────────────────
-with tabs[2]:
+@st.cache_data(ttl=300)
+def berechne_szenarien(d_idx, d_monat, d_quartal, d_jahrestag, d_temp, d_regen, d_sonne,
+                       d_ferien, d_event, d_budget, d_tv, d_social, d_energie, d_wettbew,
+                       d_zufried, d_liefer, d_preis):
     szenarien = {
         "Baseline": [d_idx, d_monat, d_quartal, d_jahrestag, d_temp, d_regen, d_sonne,
                      int(d_ferien), int(d_event), d_budget, d_tv, d_social,
@@ -857,6 +1217,16 @@ with tabs[2]:
         sz_a.append(v)
         sz_u.append(round(v * d_preis, 2))
     
+    return sz_n, sz_a, sz_u
+# ────────────────────────────────────────────────────────────────────────────
+# TAB 3: SCENARIOS
+# ────────────────────────────────────────────────────────────────────────────
+with tabs[2]:
+    sz_n, sz_a, sz_u = berechne_szenarien(
+        d_idx, d_monat, d_quartal, d_jahrestag, d_temp, d_regen, d_sonne,
+        d_ferien, d_event, d_budget, d_tv, d_social, d_energie, d_wettbew,
+        d_zufried, d_liefer, d_preis
+    )
     farben_sz = [C1, C2, C4, C5, C3, "#ffd60a"]
     
     col_s1, col_s2 = st.columns([3, 2])
