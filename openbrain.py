@@ -530,58 +530,51 @@ C_DANGER = "#ff3b30"
 # ══════════════════════════════════════════════════════════════════════════════
 time_str = datetime.datetime.now().strftime("%d.%m.%Y | %H:%M")
 
-st.markdown(f"""
-<div class="header-main">
-    <div class="header-title">
-        <div class="header-icon">→</div>
-        <div class="header-text">
-            <h1>OpenBrain</h1>
-            <p>Demand Intelligence Platform</p>
-        </div>
-    </div>
-    
-    <div class="header-badges">
-        <span class="status-badge badge-live">LIVE</span>
-        <span class="status-badge badge-info">MLP Neural Net</span>
-        <span class="status-badge badge-info">Accuracy {metrics['r2']*100:.1f}%</span>
-        <span class="header-time">{time_str}</span>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+col_header_left, col_header_right = st.columns([2, 1])
+with col_header_left:
+    st.markdown("### OpenBrain Demand Forecast")
+    st.markdown(f"**Status:** Live | **Model:** MLP Neural Network | **Accuracy:** {metrics['r2']*100:.1f}% | {time_str}")
+
+with col_header_right:
+    st.markdown("")
+    st.markdown(f"**R² = {metrics['r2']:.4f}** | **RMSE = {metrics['rmse']:.1f}**")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SIDEBAR
 # ══════════════════════════════════════════════════════════════════════════════
 with st.sidebar:
-    st.markdown("<div style='font-size:0.75rem; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:#a1a1a6; margin-bottom:1.25rem;'>Forecast Parameters</div>", unsafe_allow_html=True)
+    st.markdown("**Forecast Parameters**")
+    st.divider()
     
-    with st.expander("Date & Weather", expanded=True):
+    with st.expander("📅 Date & Weather", expanded=True):
         day_names = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
-        day_sel = st.selectbox("Day", day_names, label_visibility="collapsed")
+        day_sel = st.selectbox("Weekday", day_names, help="Day of week affects traffic patterns")
         day_idx = day_names.index(day_sel)
-        month = st.slider("Month", 1, 12, datetime.date.today().month, label_visibility="collapsed")
+        
+        month = st.slider("Month", 1, 12, datetime.date.today().month, help="Seasonal variations impact demand")
         quarter = ((month - 1) // 3) + 1
         dayofyear = (datetime.date(2024, month, 15) - datetime.date(2024, 1, 1)).days + 15
-        temp = st.slider("Temperature (°C)", -15, 45, 15, label_visibility="collapsed")
-        rain = st.slider("Rainfall (mm)", 0, 60, 5, label_visibility="collapsed")
-        sun = st.slider("Sunshine (h)", 0.0, 14.0, 7.0, step=0.5, label_visibility="collapsed")
+        
+        temp = st.slider("Temperature (°C)", -15, 45, 15, help="Weather affects consumer behavior")
+        rain = st.slider("Rainfall (mm)", 0, 60, 5, help="Rain reduces foot traffic by ~0.6% per mm")
+        sun = st.slider("Sunshine (h/day)", 0.0, 14.0, 7.0, step=0.5, help="Sunny days boost sales (+1.1% per h)")
     
-    with st.expander("Marketing & Market"):
-        budget = st.slider("Ad Budget (€)", 0, 800, 200, label_visibility="collapsed")
-        tv = st.slider("TV Reach", 0, 100, 40, label_visibility="collapsed")
-        social = st.slider("Social Reach", 0.0, 10.0, 5.0, step=0.1, label_visibility="collapsed")
-        energy = st.slider("Energy Index", 50, 220, 105, label_visibility="collapsed")
-        competition = st.slider("Competition Level", 0.0, 1.0, 0.3, step=0.05, label_visibility="collapsed")
+    with st.expander("📢 Marketing & Market"):
+        budget = st.slider("Ad Budget (€)", 0, 800, 200, help="Marketing spend drives awareness")
+        tv = st.slider("TV Reach (%)", 0, 100, 40, help="TV campaigns reach percentage")
+        social = st.slider("Social Reach (millions)", 0.0, 10.0, 5.0, step=0.1, help="Social media impressions")
+        energy = st.slider("Energy Price Index", 50, 220, 105, help="High energy costs reduce margins")
+        competition = st.slider("Competition Level (0–1)", 0.0, 1.0, 0.3, step=0.05, help="Market competition intensity")
     
-    with st.expander("Operations"):
-        satisfaction = st.slider("Customer Satisfaction", 1.0, 10.0, 7.5, step=0.1, label_visibility="collapsed")
-        delivery = st.slider("Delivery Performance", 0.6, 1.0, 0.90, step=0.05, label_visibility="collapsed")
-        holiday = st.checkbox("Holiday Period")
-        event = st.checkbox("Special Event")
+    with st.expander("⚙️ Operations"):
+        satisfaction = st.slider("Customer Satisfaction (1–10)", 1.0, 10.0, 7.5, step=0.1, help="Higher satisfaction = more repeat sales")
+        delivery = st.slider("Delivery Performance (0–1)", 0.6, 1.0, 0.90, step=0.05, help="On-time delivery rate")
+        holiday = st.checkbox("Holiday Period", help="Special holidays boost sales +8%")
+        event = st.checkbox("Special Event", help="Events (sales, promotions) boost sales +52%")
     
-    with st.expander("Pricing"):
-        price = st.slider("Price per Unit (€)", 1.0, 20.0, 4.50, step=0.10, label_visibility="collapsed")
-        margin_pct = st.slider("Margin (%)", 10, 50, 28, label_visibility="collapsed")
+    with st.expander("💰 Pricing Strategy"):
+        price = st.slider("Price per Unit (€)", 1.0, 20.0, 4.50, step=0.10, help="Product selling price")
+        margin_pct = st.slider("Gross Margin (%)", 10, 50, 28, help="Profit margin after COGS")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # FORECAST CALCULATION
@@ -603,21 +596,25 @@ delta_pct = round((sales_pred - hist_month_avg) / (hist_month_avg + 1) * 100, 1)
 # ══════════════════════════════════════════════════════════════════════════════
 # MAIN CONTENT
 # ══════════════════════════════════════════════════════════════════════════════
-tabs = st.tabs(["Dashboard", "Market Analysis", "Scenarios", "Forecast", "Risk Assessment", "Model Details"])
+tabs = st.tabs(["Sales Forecast", "Market Performance", "What-If Scenarios", "30-Day Projection", "Risk & Alerts", "Model Quality"])
 
 # ────────────────────────────────────────────────────────────────────────────
 # TAB 1: DASHBOARD
 # ────────────────────────────────────────────────────────────────────────────
 with tabs[0]:
+    # Product context
+    st.markdown("**Sample Product: Premium Coffee Beans (500g bag)**")
+    st.divider()
+    
     col1, col2, col3 = st.columns(3)
-    col1.metric("Sales Forecast", f"{sales_pred} units", f"{delta_pct:+.1f}% vs month avg")
-    col2.metric("Revenue Projection", f"€{revenue:,.0f}", f"@ €{price:.2f}/unit")
-    col3.metric("Gross Contribution", f"€{contribution:,.0f}", f"{margin_pct}% margin")
+    col1.metric("Daily Sales Forecast", f"{sales_pred} units", f"{delta_pct:+.1f}% vs monthly avg", help="Expected units sold today")
+    col2.metric("Revenue Today", f"€{revenue:,.0f}", f"@ €{price:.2f}/unit", help="Expected turnover")
+    col3.metric("Gross Profit", f"€{contribution:,.0f}", f"{margin_pct}% margin", help="Profit after COGS")
     
     col4, col5, col6 = st.columns(3)
-    col4.metric("Confidence Interval", f"{conf_low}–{conf_high}", "95% range")
-    col5.metric("Capacity Utilization", f"{min(100, int(sales_pred/1.5))}%", "of capacity")
-    col6.metric("Est. Profit", f"€{contribution:,.0f}", "gross profit")
+    col4.metric("95% Confidence Range", f"{conf_low}–{conf_high} units", "", help="Expected sales range with 95% confidence")
+    col5.metric("Capacity Usage", f"{min(100, int(sales_pred/1.5))}%", f"of max {int(sales_pred/0.01*1.5)} units", help="Production capacity utilization")
+    col6.metric("Inventory Need", f"{int(sales_pred*1.2)} units", f"+20% safety stock", help="Recommended inventory level")
     
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
     
@@ -696,6 +693,10 @@ with tabs[0]:
 # TAB 2: MARKET ANALYSIS
 # ────────────────────────────────────────────────────────────────────────────
 with tabs[1]:
+    st.markdown("**Historical Performance & Market Trends**")
+    st.markdown("*Based on 1500 days of historical data (2018-2022)*")
+    st.divider()
+    
     col_mkt1, col_mkt2 = st.columns([2, 1])
     
     with col_mkt1:
@@ -751,13 +752,17 @@ with tabs[1]:
 # TAB 3: SCENARIOS
 # ────────────────────────────────────────────────────────────────────────────
 with tabs[2]:
+    st.markdown("**Scenario Planning & Sensitivity Analysis**")
+    st.markdown("*Explore how different market conditions affect sales outcomes*")
+    st.divider()
+    
     scenarios = {
-        "Current": [day_idx, month, quarter, dayofyear, temp, rain, sun, int(holiday), int(event), budget, tv, social, energy, competition, satisfaction, delivery],
-        "Optimistic": [5, month, quarter, dayofyear, 22, 0, 10, 1, 1, min(800,budget*2), min(100,tv+30), min(10,social+2), max(50,energy-25), max(0,competition-0.3), min(10,satisfaction+1.5), min(1,delivery+0.08)],
-        "Pessimistic": [1, month, quarter, dayofyear, 3, 40, 1, 0, 0, max(0,budget//3), max(0,tv-30), max(0,social-2), min(220,energy+35), min(1,competition+0.3), max(1,satisfaction-2), max(0.6,delivery-0.15)],
-        "Event Boost": [5, month, quarter, dayofyear, temp, 0, sun, int(holiday), 1, min(800,budget*1.5), min(100,tv+25), min(10,social+3), energy, competition, min(10,satisfaction+0.5), delivery],
-        "High Energy": [day_idx, month, quarter, dayofyear, temp, rain, sun, int(holiday), int(event), max(0,budget-100), tv, social, min(220,energy+60), min(1,competition+0.15), max(1,satisfaction-0.5), max(0.6,delivery-0.05)],
-        "Marketing Push": [day_idx, month, quarter, dayofyear, temp, rain, sun, int(holiday), int(event), min(800,budget*2.5), min(100,tv+50), min(10,social+4), energy, competition, satisfaction, delivery],
+        "Current Forecast": [day_idx, month, quarter, dayofyear, temp, rain, sun, int(holiday), int(event), budget, tv, social, energy, competition, satisfaction, delivery],
+        "Sunny Weekend": [5, month, quarter, dayofyear, 22, 0, 10, 1, 1, min(800,budget*2), min(100,tv+30), min(10,social+2), max(50,energy-25), max(0,competition-0.3), min(10,satisfaction+1.5), min(1,delivery+0.08)],
+        "Rainy Weekday": [1, month, quarter, dayofyear, 3, 40, 1, 0, 0, max(0,budget//3), max(0,tv-30), max(0,social-2), min(220,energy+35), min(1,competition+0.3), max(1,satisfaction-2), max(0.6,delivery-0.15)],
+        "Flash Sale": [5, month, quarter, dayofyear, temp, 0, sun, int(holiday), 1, min(800,budget*1.5), min(100,tv+25), min(10,social+3), energy, competition, min(10,satisfaction+0.5), delivery],
+        "High Costs": [day_idx, month, quarter, dayofyear, temp, rain, sun, int(holiday), int(event), max(0,budget-100), tv, social, min(220,energy+60), min(1,competition+0.15), max(1,satisfaction-0.5), max(0.6,delivery-0.05)],
+        "Full Campaign": [day_idx, month, quarter, dayofyear, temp, rain, sun, int(holiday), int(event), min(800,budget*2.5), min(100,tv+50), min(10,social+4), energy, competition, satisfaction, delivery],
     }
     
     scenario_names, scenario_sales, scenario_revenue = [], [], []
@@ -798,17 +803,22 @@ with tabs[2]:
 # TAB 4: FORECAST SIMULATION
 # ────────────────────────────────────────────────────────────────────────────
 with tabs[3]:
+    st.markdown("**30-Day Sales Projection**")
+    st.markdown("*Simulate different market conditions and forecast sales trajectory*")
+    st.divider()
+    
     col_sim_opts, col_sim_chart = st.columns([1, 3])
     
     with col_sim_opts:
-        sim_days = st.slider("Time Horizon", 7, 365, 60)
-        sim_noise = st.slider("Volatility", 0, 30, 8)
-        trend_mode = st.selectbox("Trend Type", ["Neutral", "Growth", "Decline"])
-        show_mc = st.checkbox("Monte Carlo Paths")
-        show_raw = st.checkbox("Raw Data")
+        st.markdown("**Simulation Settings**")
+        sim_days = st.slider("Forecast Days", 7, 365, 30, help="How many days to forecast")
+        sim_noise = st.slider("Volatility (σ)", 0, 30, 8, help="Expected daily variation")
+        trend_mode = st.selectbox("Market Trend", ["Neutral", "Growth (+8%)", "Decline (-8%)"], help="Expected market direction")
+        show_mc = st.checkbox("Show 10 Monte Carlo paths", help="Visualize probability ranges")
+        show_raw = st.checkbox("Export raw forecast data", help="Show detailed forecast table")
     
     with col_sim_chart:
-        trend_factor = {"Neutral":1.0, "Growth":1.08, "Decline":0.92}[trend_mode]
+        trend_factor = {"Neutral":1.0, "Growth (+8%)":1.08, "Decline (-8%)":0.92}[trend_mode]
         sim_dates = pd.date_range(datetime.date.today(), periods=sim_days)
         rng_sim = np.random.default_rng(77)
         sim_sales = [int(max(0, sales_pred * trend_factor + rng_sim.normal(0, sim_noise))) for _ in range(sim_days)]
@@ -826,14 +836,14 @@ with tabs[3]:
             name="Base Forecast"
         ))
         fig_sim.add_hline(y=sales_pred, line_dash="dash", line_color="rgba(0,0,0,0.15)", annotation_text="Current")
-        fig_sim.update_layout(**PLOT_CONFIG, title=f"{sim_days}-Day Projection", height=360)
+        fig_sim.update_layout(**PLOT_CONFIG, title=f"{sim_days}-Day Sales Forecast Projection", height=360)
         st.plotly_chart(fig_sim, use_container_width=True)
     
     k1, k2, k3, k4 = st.columns(4)
-    k1.metric("Average", f"{np.mean(sim_sales):.0f} units")
-    k2.metric("Peak", f"{max(sim_sales)} units")
-    k3.metric("Minimum", f"{min(sim_sales)} units")
-    k4.metric("Total Revenue", f"€{sum(sim_sales)*price:,.0f}")
+    k1.metric("Average Daily Sales", f"{np.mean(sim_sales):.0f} units", help=f"Expected daily average over {sim_days} days")
+    k2.metric("Best Case", f"{max(sim_sales)} units", help="Maximum likely daily sales")
+    k3.metric("Worst Case", f"{min(sim_sales)} units", help="Minimum likely daily sales")
+    k4.metric("Total Revenue", f"€{sum(sim_sales)*price:,.0f}", help=f"Expected {sim_days}-day revenue")
     
     if show_raw:
         sim_df = pd.DataFrame({
@@ -847,6 +857,9 @@ with tabs[3]:
 # TAB 5: RISK ASSESSMENT
 # ────────────────────────────────────────────────────────────────────────────
 with tabs[4]:
+    st.markdown("**Risk Assessment & Action Items**")
+    st.divider()
+    
     col_risk1, col_risk2 = st.columns(2)
     
     with col_risk1:
@@ -902,6 +915,10 @@ with tabs[4]:
 # TAB 6: MODEL DETAILS
 # ────────────────────────────────────────────────────────────────────────────
 with tabs[5]:
+    st.markdown("**Model Architecture & Validation**")
+    st.markdown("*Deep neural network trained on 1500 historical datapoints*")
+    st.divider()
+    
     col_m1, col_m2, col_m3, col_m4 = st.columns(4)
     col_m1.metric("MAE", metrics["mae"], "units")
     col_m2.metric("RMSE", metrics["rmse"], "units")
