@@ -20,17 +20,17 @@ from plotly.subplots import make_subplots
 # ══════════════════════════════════════════════════════════════════════════════
 st.set_page_config(
     page_title="OpenBrain Demand Intelligence",
-    page_icon="◈",
+    page_icon="→",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # ══════════════════════════════════════════════════════════════════════════════
-# CSS STYLING (Dark/Light Mode Compatible)
+# MODERN CSS STYLING
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
 
 :root {
     color-scheme: light dark;
@@ -38,246 +38,372 @@ st.markdown("""
 
 /* Dark Mode (Default) */
 html, body, .stApp {
-    --bg-dark: #0a0e1f;
-    --bg-card: #0f1629;
-    --bg-input: #141d2e;
-    --border: rgba(255,255,255,0.07);
-    --border-hover: rgba(255,255,255,0.15);
-    --accent: #0084ff;
-    --accent-alt: #00d4aa;
-    --accent-warn: #ffa500;
-    --accent-danger: #ff4757;
-    --text-main: #e8eef5;
-    --text-sec: #a8b5c8;
-    --text-muted: #6b7585;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f7;
+    --bg-tertiary: #efefef;
+    --accent-main: #0066ff;
+    --accent-light: #e6f0ff;
+    --success: #34c759;
+    --success-light: #e8f5e9;
+    --warning: #ff9500;
+    --warning-light: #fff3e0;
+    --danger: #ff3b30;
+    --danger-light: #ffebee;
+    --text-primary: #1d1d1f;
+    --text-secondary: #86868b;
+    --text-tertiary: #a1a1a6;
+    --border: #d5d5d7;
+    --border-light: #e5e5e7;
 }
 
-/* Light Mode */
-@media (prefers-color-scheme: light) {
+/* Dark Mode Option */
+@media (prefers-color-scheme: dark) {
     html, body, .stApp {
-        --bg-dark: #ffffff;
-        --bg-card: #f8f9fb;
-        --bg-input: #f0f2f6;
-        --border: rgba(0,0,0,0.08);
-        --border-hover: rgba(0,0,0,0.15);
-        --accent: #0066ff;
-        --accent-alt: #00a878;
-        --accent-warn: #ff9500;
-        --accent-danger: #ff5a5a;
-        --text-main: #1a202c;
-        --text-sec: #475569;
-        --text-muted: #94a3b8;
+        --bg-primary: #1d1d1f;
+        --bg-secondary: #2d2d2f;
+        --bg-tertiary: #424245;
+        --accent-main: #0a84ff;
+        --accent-light: #0a3a7a;
+        --text-primary: #f5f5f7;
+        --text-secondary: #a1a1a6;
+        --text-tertiary: #86868b;
+        --border: #424245;
+        --border-light: #3a3a3c;
     }
 }
 
 * { box-sizing: border-box; }
 
 html, body, .stApp {
-    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-card) 100%);
-    color: var(--text-main);
-    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
 }
 
 .main .block-container {
-    max-width: 1800px;
-    padding: 2rem 2.5rem;
+    max-width: 1920px;
+    padding: 2.5rem 3rem;
 }
 
+/* Sidebar */
 [data-testid="stSidebar"] {
-    background: rgba(20,29,46,0.4);
-    backdrop-filter: blur(10px);
-    border-right: 1px solid var(--border);
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-light);
 }
 
+/* Expanders */
 [data-testid="stExpander"] {
     background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 10px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
     margin-bottom: 0.75rem;
+    overflow: hidden;
 }
 
 [data-testid="stExpander"] summary {
-    padding: 0.8rem 1rem;
-    background: rgba(20,29,46,0.5);
-    border-radius: 10px;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
     font-weight: 600;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--text-muted);
+    font-size: 0.875rem;
+    letter-spacing: -0.3px;
+    color: var(--text-primary);
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 [data-testid="stExpander"] summary:hover {
-    background: rgba(20,29,46,0.8);
-    border-color: var(--border-hover);
+    background: var(--bg-tertiary);
+    border-color: var(--border);
 }
 
+/* Inputs */
 .stSelectbox > div > div,
-.stNumberInput > div > div > input {
-    background: var(--bg-input) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: 8px !important;
-    color: var(--text-main) !important;
-    font-size: 0.85rem !important;
+.stNumberInput > div > div > input,
+.stSlider > div > div > div > input {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-light) !important;
+    border-radius: 6px !important;
+    color: var(--text-primary) !important;
+    font-size: 0.875rem !important;
+    font-family: 'Inter', sans-serif !important;
 }
 
-.stSelectbox > div > div:focus-within {
-    border-color: var(--accent) !important;
-    box-shadow: 0 0 0 3px rgba(0,132,255,0.1) !important;
+.stSelectbox > div > div:focus-within,
+.stNumberInput > div > div > input:focus,
+.stSlider > div > div > div > input:focus {
+    border-color: var(--accent-main) !important;
+    box-shadow: 0 0 0 2px var(--accent-light) !important;
 }
 
 [data-testid="stSlider"] input {
-    accent-color: var(--accent) !important;
+    accent-color: var(--accent-main) !important;
 }
 
 .stCheckbox label {
-    color: var(--text-main) !important;
+    color: var(--text-primary) !important;
+    font-weight: 500;
 }
 
+/* Tabs */
 .stTabs [data-baseweb="tab-list"] {
-    border-bottom: 2px solid var(--border);
+    border-bottom: 1px solid var(--border-light);
+    gap: 0;
 }
 
 .stTabs [data-baseweb="tab"] {
-    color: var(--text-sec) !important;
-    font-weight: 600;
-    font-size: 0.85rem;
+    color: var(--text-secondary) !important;
+    font-weight: 500;
+    font-size: 0.875rem;
+    padding: 1rem 1.5rem !important;
+    border-radius: 0 !important;
 }
 
 .stTabs [aria-selected="true"] {
-    color: var(--accent) !important;
-    border-bottom: 3px solid var(--accent) !important;
+    color: var(--accent-main) !important;
+    border-bottom: 2px solid var(--accent-main) !important;
 }
 
+/* Metrics */
 [data-testid="stMetricContainer"] {
-    background: rgba(20,29,46,0.6);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.25rem;
-    transition: all 0.3s ease;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
 }
 
 [data-testid="stMetricContainer"]:hover {
-    border-color: var(--border-hover);
-    background: rgba(20,29,46,0.9);
+    border-color: var(--accent-main);
+    background: var(--bg-tertiary);
 }
 
 [data-testid="stMetricLabel"] {
-    font-size: 0.65rem;
-    font-weight: 700;
-    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-tertiary);
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 [data-testid="stMetricValue"] {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.8rem;
-    font-weight: 600;
-    color: var(--text-main);
-    margin-top: 0.35rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-top: 0.5rem;
 }
 
+/* Buttons */
 .stButton > button {
-    background: linear-gradient(135deg, var(--accent), #00d4ff);
+    background: var(--accent-main);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     font-weight: 600;
     padding: 0.6rem 1.5rem;
+    font-size: 0.875rem;
     transition: all 0.2s ease;
 }
 
 .stButton > button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,132,255,0.2);
+    background: #0052cc;
+    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.25);
+    transform: translateY(-1px);
 }
 
+/* DataFrame */
 [data-testid="stDataFrame"] {
-    background: rgba(20,29,46,0.5);
-    border: 1px solid var(--border);
-    border-radius: 10px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
 }
 
+/* Cards */
 .glass-card {
-    background: rgba(20,29,46,0.6);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
     padding: 1.5rem;
+    transition: all 0.2s ease;
 }
 
+.glass-card:hover {
+    border-color: var(--accent-main);
+}
+
+/* Badges */
 .status-badge {
     display: inline-flex;
     align-items: center;
-    padding: 0.4rem 0.9rem;
-    border-radius: 20px;
-    font-size: 0.7rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.5px;
     border: 1px solid;
     margin-right: 0.5rem;
+    text-transform: uppercase;
 }
 
 .badge-live {
-    background: rgba(0,212,170,0.1);
-    color: var(--accent-alt);
-    border-color: rgba(0,212,170,0.3);
+    background: var(--success-light);
+    color: var(--success);
+    border-color: var(--success);
 }
 
 .badge-info {
-    background: rgba(0,132,255,0.1);
-    color: var(--accent);
-    border-color: rgba(0,132,255,0.3);
+    background: var(--accent-light);
+    color: var(--accent-main);
+    border-color: var(--accent-main);
 }
 
+/* Alerts */
 .alert-box {
     padding: 1rem 1.25rem;
-    border-radius: 10px;
-    border-left: 4px solid;
+    border-radius: 6px;
+    border-left: 3px solid;
     margin: 0.75rem 0;
-    font-size: 0.85rem;
+    font-size: 0.875rem;
+    font-weight: 500;
 }
 
 .alert-success {
-    background: rgba(0,212,170,0.08);
-    border-color: var(--accent-alt);
-    color: var(--text-main);
+    background: var(--success-light);
+    border-color: var(--success);
+    color: var(--text-primary);
 }
 
 .alert-warning {
-    background: rgba(255,165,0,0.08);
-    border-color: var(--accent-warn);
-    color: var(--text-main);
+    background: var(--warning-light);
+    border-color: var(--warning);
+    color: var(--text-primary);
 }
 
 .alert-danger {
-    background: rgba(255,71,87,0.08);
-    border-color: var(--accent-danger);
-    color: var(--text-main);
+    background: var(--danger-light);
+    border-color: var(--danger);
+    color: var(--text-primary);
 }
 
+/* Divider */
 .divider {
     height: 1px;
-    background: linear-gradient(to right, transparent, var(--border), transparent);
+    background: var(--border-light);
     margin: 2rem 0;
 }
 
+/* Header */
+.header-main {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.header-icon {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, var(--accent-main) 0%, #0052cc 100%);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1.375rem;
+}
+
+.header-text h1 {
+    font-size: 1.375rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.header-text p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin: 0.25rem 0 0 0;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.header-badges {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.header-time {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    font-family: 'Fira Code', monospace;
+}
+
+/* Footer */
 .footer {
     text-align: center;
-    color: var(--text-muted);
+    color: var(--text-tertiary);
     font-size: 0.75rem;
     padding: 2rem 0;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--border-light);
     margin-top: 3rem;
+    letter-spacing: -0.3px;
+}
+
+/* Section Headers */
+.section-header {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.3px;
+}
+
+/* Risk Bar */
+.risk-label {
+    font-size: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+}
+
+.risk-bar-container {
+    width: 100%;
+    height: 6px;
+    background: var(--bg-tertiary);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
+
+.risk-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
-# LOAD MODEL (Single cache for fast loading)
+# LOAD MODEL
 # ══════════════════════════════════════════════════════════════════════════════
 
 @st.cache_resource
@@ -372,66 +498,53 @@ def load_model():
 model, scaler, hist_data, features, metrics = load_model()
 
 # ══════════════════════════════════════════════════════════════════════════════
-# PLOTLY TEMPLATE
+# PLOTLY TEMPLATE (Modern)
 # ══════════════════════════════════════════════════════════════════════════════
 PLOT_CONFIG = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
-    font=dict(family="Space Grotesk", color="#a8b5c8", size=11),
-    xaxis=dict(gridcolor="rgba(255,255,255,0.05)", linecolor="rgba(255,255,255,0.08)"),
-    yaxis=dict(gridcolor="rgba(255,255,255,0.05)", linecolor="rgba(255,255,255,0.08)"),
+    font=dict(family="Inter", color="#86868b", size=11),
+    xaxis=dict(
+        gridcolor="rgba(0,0,0,0.05)",
+        linecolor="rgba(0,0,0,0.08)",
+        showgrid=True,
+        zeroline=False
+    ),
+    yaxis=dict(
+        gridcolor="rgba(0,0,0,0.05)",
+        linecolor="rgba(0,0,0,0.08)",
+        showgrid=True,
+        zeroline=False
+    ),
     margin=dict(l=40, r=15, t=40, b=25),
     hovermode="x unified",
 )
 
-C_PRIMARY = "#0084ff"
-C_SUCCESS = "#00d4aa"
-C_WARNING = "#ffa500"
-C_DANGER = "#ff4757"
-C_INFO = "#ffd60a"
+C_PRIMARY = "#0066ff"
+C_SUCCESS = "#34c759"
+C_WARNING = "#ff9500"
+C_DANGER = "#ff3b30"
 
 # ══════════════════════════════════════════════════════════════════════════════
 # HEADER
 # ══════════════════════════════════════════════════════════════════════════════
-time_str = datetime.datetime.now().strftime("%d.%m | %H:%M")
+time_str = datetime.datetime.now().strftime("%d.%m.%Y | %H:%M")
 
 st.markdown(f"""
-<div style="
-    background: rgba(20,29,46,0.6);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-">
-    <div style="display:flex; align-items:center; gap:1rem;">
-        <div style="
-            width: 40px; height: 40px;
-            background: linear-gradient(135deg, #0084ff, #00d4ff);
-            border-radius: 10px;
-            display: flex; align-items:center; justify-content:center;
-            color: white; font-weight: 700; font-size: 1.2rem;
-        ">◈</div>
-        <div>
-            <div style="font-size: 0.65rem; color: #6b7585; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.2rem;">
-                OpenBrain Intelligence
-            </div>
-            <div style="font-size: 1.2rem; font-weight: 700; color: #e8eef5;">
-                Neural Demand Predictor
-            </div>
+<div class="header-main">
+    <div class="header-title">
+        <div class="header-icon">→</div>
+        <div class="header-text">
+            <h1>OpenBrain</h1>
+            <p>Demand Intelligence Platform</p>
         </div>
     </div>
     
-    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+    <div class="header-badges">
         <span class="status-badge badge-live">LIVE</span>
-        <span class="status-badge badge-info">MLP</span>
-        <span class="status-badge badge-info">R² = {metrics['r2']}</span>
-        <span style="font-size: 0.7rem; color: #6b7585; font-family: monospace; margin-left: 0.5rem;">{time_str}</span>
+        <span class="status-badge badge-info">MLP Neural Net</span>
+        <span class="status-badge badge-info">Accuracy {metrics['r2']*100:.1f}%</span>
+        <span class="header-time">{time_str}</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -440,9 +553,9 @@ st.markdown(f"""
 # SIDEBAR
 # ══════════════════════════════════════════════════════════════════════════════
 with st.sidebar:
-    st.markdown("<div style='font-size:0.75rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#6b7585; margin-bottom:1rem;'>Input Parameters</div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size:0.75rem; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:#a1a1a6; margin-bottom:1.25rem;'>Forecast Parameters</div>", unsafe_allow_html=True)
     
-    with st.expander("Time & Weather", expanded=True):
+    with st.expander("Date & Weather", expanded=True):
         day_names = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
         day_sel = st.selectbox("Day", day_names, label_visibility="collapsed")
         day_idx = day_names.index(day_sel)
@@ -453,25 +566,25 @@ with st.sidebar:
         rain = st.slider("Rainfall (mm)", 0, 60, 5, label_visibility="collapsed")
         sun = st.slider("Sunshine (h)", 0.0, 14.0, 7.0, step=0.5, label_visibility="collapsed")
     
-    with st.expander("Market & Ads"):
+    with st.expander("Marketing & Market"):
         budget = st.slider("Ad Budget (€)", 0, 800, 200, label_visibility="collapsed")
         tv = st.slider("TV Reach", 0, 100, 40, label_visibility="collapsed")
         social = st.slider("Social Reach", 0.0, 10.0, 5.0, step=0.1, label_visibility="collapsed")
         energy = st.slider("Energy Index", 50, 220, 105, label_visibility="collapsed")
-        competition = st.slider("Competition", 0.0, 1.0, 0.3, step=0.05, label_visibility="collapsed")
+        competition = st.slider("Competition Level", 0.0, 1.0, 0.3, step=0.05, label_visibility="collapsed")
     
-    with st.expander("Quality & Ops"):
-        satisfaction = st.slider("Satisfaction", 1.0, 10.0, 7.5, step=0.1, label_visibility="collapsed")
-        delivery = st.slider("Delivery", 0.6, 1.0, 0.90, step=0.05, label_visibility="collapsed")
-        holiday = st.checkbox("Holiday")
-        event = st.checkbox("Event")
+    with st.expander("Operations"):
+        satisfaction = st.slider("Customer Satisfaction", 1.0, 10.0, 7.5, step=0.1, label_visibility="collapsed")
+        delivery = st.slider("Delivery Performance", 0.6, 1.0, 0.90, step=0.05, label_visibility="collapsed")
+        holiday = st.checkbox("Holiday Period")
+        event = st.checkbox("Special Event")
     
     with st.expander("Pricing"):
         price = st.slider("Price per Unit (€)", 1.0, 20.0, 4.50, step=0.10, label_visibility="collapsed")
         margin_pct = st.slider("Margin (%)", 10, 50, 28, label_visibility="collapsed")
 
 # ══════════════════════════════════════════════════════════════════════════════
-# FORECAST
+# FORECAST CALCULATION
 # ══════════════════════════════════════════════════════════════════════════════
 input_data = np.array([[
     day_idx, month, quarter, dayofyear, temp, rain, sun,
@@ -490,36 +603,35 @@ delta_pct = round((sales_pred - hist_month_avg) / (hist_month_avg + 1) * 100, 1)
 # ══════════════════════════════════════════════════════════════════════════════
 # MAIN CONTENT
 # ══════════════════════════════════════════════════════════════════════════════
-tabs = st.tabs(["Dashboard", "Market Analysis", "Scenarios", "Simulation", "Risk", "Model"])
+tabs = st.tabs(["Dashboard", "Market Analysis", "Scenarios", "Forecast", "Risk Assessment", "Model Details"])
 
 # ────────────────────────────────────────────────────────────────────────────
 # TAB 1: DASHBOARD
 # ────────────────────────────────────────────────────────────────────────────
 with tabs[0]:
     col1, col2, col3 = st.columns(3)
-    col1.metric("Sales Forecast", f"{sales_pred} units", f"{delta_pct:+.1f}% YoY")
-    col2.metric("Revenue", f"€{revenue:,.0f}", f"@ €{price:.2f}")
-    col3.metric("Contribution", f"€{contribution:,.0f}", f"{margin_pct}% margin")
+    col1.metric("Sales Forecast", f"{sales_pred} units", f"{delta_pct:+.1f}% vs month avg")
+    col2.metric("Revenue Projection", f"€{revenue:,.0f}", f"@ €{price:.2f}/unit")
+    col3.metric("Gross Contribution", f"€{contribution:,.0f}", f"{margin_pct}% margin")
     
     col4, col5, col6 = st.columns(3)
-    col4.metric("95% Confidence", f"{conf_low}–{conf_high}", "Range")
-    col5.metric("Capacity", f"{min(100, int(sales_pred/1.5))}%", "Usage")
-    col6.metric("Profit Est.", f"€{contribution:,.0f}", "Gross")
+    col4.metric("Confidence Interval", f"{conf_low}–{conf_high}", "95% range")
+    col5.metric("Capacity Utilization", f"{min(100, int(sales_pred/1.5))}%", "of capacity")
+    col6.metric("Est. Profit", f"€{contribution:,.0f}", "gross profit")
     
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
     
     col_left, col_right = st.columns([2, 1])
     
     with col_left:
-        # Status Alert
         if sales_pred > 120:
-            st.markdown('<div class="alert-box alert-danger">Capacity Alert: Demand exceeds normal capacity</div>', unsafe_allow_html=True)
+            st.markdown('<div class="alert-box alert-danger">Capacity Alert: Forecast exceeds standard capacity constraints</div>', unsafe_allow_html=True)
         elif competition > 0.65:
-            st.markdown('<div class="alert-box alert-warning">Competition: Market pressure detected</div>', unsafe_allow_html=True)
+            st.markdown('<div class="alert-box alert-warning">Market Pressure: High competition detected in this segment</div>', unsafe_allow_html=True)
         elif sales_pred < 30:
-            st.markdown('<div class="alert-box alert-warning">Low Demand: Consider marketing boost</div>', unsafe_allow_html=True)
+            st.markdown('<div class="alert-box alert-warning">Low Demand: Consider additional marketing investment</div>', unsafe_allow_html=True)
         else:
-            st.markdown('<div class="alert-box alert-success">Optimal: All parameters normal</div>', unsafe_allow_html=True)
+            st.markdown('<div class="alert-box alert-success">Optimal Conditions: All parameters in normal range</div>', unsafe_allow_html=True)
         
         # Hourly Distribution
         hours = list(range(7, 22))
@@ -531,10 +643,10 @@ with tabs[0]:
         fig_hour.add_trace(go.Scatter(
             x=hours, y=hourly.astype(int), fill="tozeroy", mode="lines",
             line=dict(color=C_PRIMARY, width=2.5),
-            fillcolor="rgba(0,132,255,0.1)",
-            name="Hourly"
+            fillcolor="rgba(0,102,255,0.08)",
+            name="Hourly Sales"
         ))
-        fig_hour.update_layout(**PLOT_CONFIG, title="Hourly Distribution", height=280)
+        fig_hour.update_layout(**PLOT_CONFIG, title="Intraday Distribution", height=300, showlegend=False)
         fig_hour.update_xaxes(ticksuffix=":00")
         st.plotly_chart(fig_hour, use_container_width=True)
         
@@ -543,17 +655,17 @@ with tabs[0]:
         rng_week = np.random.default_rng(42)
         weekly = [int(max(0, sales_pred * rng_week.uniform(0.75, 1.25))) for _ in range(7)]
         peak = max(weekly)
-        colors = [C_PRIMARY if v == peak else "rgba(0,132,255,0.25)" for v in weekly]
+        colors = [C_PRIMARY if v == peak else "rgba(0,102,255,0.15)" for v in weekly]
         
         fig_week = go.Figure(go.Bar(
             x=day_short, y=weekly, marker_color=colors,
             text=[str(v) for v in weekly], textposition="outside"
         ))
-        fig_week.update_layout(**PLOT_CONFIG, title="7-Day Forecast", height=250, showlegend=False)
+        fig_week.update_layout(**PLOT_CONFIG, title="7-Day Forecast", height=280, showlegend=False)
         st.plotly_chart(fig_week, use_container_width=True)
     
     with col_right:
-        # Factors Radar
+        # Factors Profile
         factors = ["Ads", "Temp", "Weekend", "Event", "Social", "Satisfaction", "Delivery"]
         values = [
             budget / 800,
@@ -568,14 +680,15 @@ with tabs[0]:
         fig_radar = go.Figure(go.Scatterpolar(
             r=values + [values[0]], theta=factors + [factors[0]],
             fill="toself",
-            fillcolor="rgba(0,132,255,0.08)",
-            line=dict(color=C_PRIMARY, width=2),
+            fillcolor="rgba(0,102,255,0.1)",
+            line=dict(color=C_PRIMARY, width=2.5),
         ))
         fig_radar.update_layout(
-            **PLOT_CONFIG, height=300, title="Factor Profile",
+            **PLOT_CONFIG, height=320, title="Key Factors",
             polar=dict(
                 radialaxis=dict(visible=True, range=[0, 1]),
             ),
+            showlegend=False
         )
         st.plotly_chart(fig_radar, use_container_width=True)
 
@@ -592,14 +705,14 @@ with tabs[1]:
         
         fig_month = make_subplots(specs=[[{"secondary_y":True}]])
         fig_month.add_trace(
-            go.Bar(x=monthly["name"], y=monthly["sales"], marker_color="rgba(0,132,255,0.25)", marker_line_color=C_PRIMARY, name="Sales"),
+            go.Bar(x=monthly["name"], y=monthly["sales"], marker_color="rgba(0,102,255,0.15)", marker_line_color=C_PRIMARY, marker_line_width=1.5, name="Avg Sales"),
             secondary_y=False
         )
         fig_month.add_trace(
             go.Scatter(x=monthly["name"], y=monthly["revenue"], line=dict(color=C_SUCCESS, width=2.5), marker=dict(size=6), name="Revenue"),
             secondary_y=True
         )
-        fig_month.update_layout(**PLOT_CONFIG, title="Monthly Trends", height=300)
+        fig_month.update_layout(**PLOT_CONFIG, title="Monthly Performance", height=300)
         st.plotly_chart(fig_month, use_container_width=True)
         
         # Heatmap
@@ -607,31 +720,31 @@ with tabs[1]:
         hm_data.columns = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
         hm_data.index = [months[m-1] for m in hm_data.index]
         
-        fig_hm = px.imshow(hm_data.T, color_continuous_scale=[[0,"#0a0e1f"],[0.5,"#0084ff"],[1,"#00d4ff"]], title="Demand Heatmap")
-        fig_hm.update_layout(**PLOT_CONFIG, height=220)
+        fig_hm = px.imshow(hm_data.T, color_continuous_scale=[[0,"#f5f5f7"],[0.5,"#0066ff"],[1,"#0052cc"]], title="Weekly-Monthly Heatmap")
+        fig_hm.update_layout(**PLOT_CONFIG, height=240)
         st.plotly_chart(fig_hm, use_container_width=True)
         
         # Quarterly
         fig_q = go.Figure()
         for q in [1,2,3,4]:
             q_data = hist_data[hist_data["quarter"]==q]["sales"]
-            fig_q.add_trace(go.Box(y=q_data, name=f"Q{q}"))
-        fig_q.update_layout(**PLOT_CONFIG, title="Quarterly Distribution", height=250)
+            fig_q.add_trace(go.Box(y=q_data, name=f"Q{q}", marker_color=C_PRIMARY))
+        fig_q.update_layout(**PLOT_CONFIG, title="Quarterly Distribution", height=280)
         st.plotly_chart(fig_q, use_container_width=True)
     
     with col_mkt2:
         st.markdown('<div class="glass-card">', unsafe_allow_html=True)
         peak_row = hist_data.loc[hist_data["sales"].idxmax()]
         stats = [
-            ("Avg Daily", f"{hist_data['sales'].mean():.0f}"),
-            ("Peak Day", str(peak_row["date"].date())),
-            ("Peak Sales", f"{int(peak_row['sales'])}"),
+            ("Daily Average", f"{hist_data['sales'].mean():.0f} units"),
+            ("Peak Date", str(peak_row["date"].date())),
+            ("Peak Sales", f"{int(peak_row['sales'])} units"),
             ("Total Revenue", f"€{hist_data['revenue'].sum():,.0f}"),
-            ("Std Dev", f"±{hist_data['sales'].std():.1f}"),
-            ("Data Points", f"{len(hist_data):,}"),
+            ("Std Deviation", f"±{hist_data['sales'].std():.1f}"),
+            ("Data Points", f"{len(hist_data):,} days"),
         ]
         for label, val in stats:
-            st.markdown(f"<div style='display:flex; justify-content:space-between; font-size:0.8rem; padding:0.3rem 0; border-bottom:1px solid rgba(255,255,255,0.05);'><span style='color:#6b7585;'>{label}</span><span style='color:#e8eef5; font-family:monospace;'>{val}</span></div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='display:flex; justify-content:space-between; font-size:0.8rem; padding:0.4rem 0; border-bottom:1px solid rgba(0,0,0,0.05);'><span style='color:#86868b;'>{label}</span><span style='color:#1d1d1f; font-family:Fira Code; font-weight:600;'>{val}</span></div>", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -639,12 +752,12 @@ with tabs[1]:
 # ────────────────────────────────────────────────────────────────────────────
 with tabs[2]:
     scenarios = {
-        "Baseline": [day_idx, month, quarter, dayofyear, temp, rain, sun, int(holiday), int(event), budget, tv, social, energy, competition, satisfaction, delivery],
-        "Best": [5, month, quarter, dayofyear, 22, 0, 10, 1, 1, min(800,budget*2), min(100,tv+30), min(10,social+2), max(50,energy-25), max(0,competition-0.3), min(10,satisfaction+1.5), min(1,delivery+0.08)],
-        "Worst": [1, month, quarter, dayofyear, 3, 40, 1, 0, 0, max(0,budget//3), max(0,tv-30), max(0,social-2), min(220,energy+35), min(1,competition+0.3), max(1,satisfaction-2), max(0.6,delivery-0.15)],
-        "Event": [5, month, quarter, dayofyear, temp, 0, sun, int(holiday), 1, min(800,budget*1.5), min(100,tv+25), min(10,social+3), energy, competition, min(10,satisfaction+0.5), delivery],
-        "Energy": [day_idx, month, quarter, dayofyear, temp, rain, sun, int(holiday), int(event), max(0,budget-100), tv, social, min(220,energy+60), min(1,competition+0.15), max(1,satisfaction-0.5), max(0.6,delivery-0.05)],
-        "Ads": [day_idx, month, quarter, dayofyear, temp, rain, sun, int(holiday), int(event), min(800,budget*2.5), min(100,tv+50), min(10,social+4), energy, competition, satisfaction, delivery],
+        "Current": [day_idx, month, quarter, dayofyear, temp, rain, sun, int(holiday), int(event), budget, tv, social, energy, competition, satisfaction, delivery],
+        "Optimistic": [5, month, quarter, dayofyear, 22, 0, 10, 1, 1, min(800,budget*2), min(100,tv+30), min(10,social+2), max(50,energy-25), max(0,competition-0.3), min(10,satisfaction+1.5), min(1,delivery+0.08)],
+        "Pessimistic": [1, month, quarter, dayofyear, 3, 40, 1, 0, 0, max(0,budget//3), max(0,tv-30), max(0,social-2), min(220,energy+35), min(1,competition+0.3), max(1,satisfaction-2), max(0.6,delivery-0.15)],
+        "Event Boost": [5, month, quarter, dayofyear, temp, 0, sun, int(holiday), 1, min(800,budget*1.5), min(100,tv+25), min(10,social+3), energy, competition, min(10,satisfaction+0.5), delivery],
+        "High Energy": [day_idx, month, quarter, dayofyear, temp, rain, sun, int(holiday), int(event), max(0,budget-100), tv, social, min(220,energy+60), min(1,competition+0.15), max(1,satisfaction-0.5), max(0.6,delivery-0.05)],
+        "Marketing Push": [day_idx, month, quarter, dayofyear, temp, rain, sun, int(holiday), int(event), min(800,budget*2.5), min(100,tv+50), min(10,social+4), energy, competition, satisfaction, delivery],
     }
     
     scenario_names, scenario_sales, scenario_revenue = [], [], []
@@ -654,7 +767,7 @@ with tabs[2]:
         scenario_sales.append(s)
         scenario_revenue.append(s * price)
     
-    colors_sc = [C_PRIMARY, C_SUCCESS, C_DANGER, "#ffd60a", C_WARNING, "#ff006e"]
+    colors_sc = [C_PRIMARY, C_SUCCESS, C_DANGER, "#ffd60a", C_WARNING, "#007eff"]
     
     col_sc1, col_sc2 = st.columns([3, 2])
     with col_sc1:
@@ -662,7 +775,7 @@ with tabs[2]:
             x=scenario_names, y=scenario_sales, marker_color=colors_sc,
             text=[str(s) for s in scenario_sales], textposition="outside"
         ))
-        fig_sc.update_layout(**PLOT_CONFIG, title="Scenario Comparison", height=320, showlegend=False)
+        fig_sc.update_layout(**PLOT_CONFIG, title="Scenario Comparison", height=340, showlegend=False)
         st.plotly_chart(fig_sc, use_container_width=True)
     
     with col_sc2:
@@ -670,28 +783,28 @@ with tabs[2]:
             y=scenario_names, x=sorted(scenario_revenue, reverse=True),
             marker_color=colors_sc
         ))
-        fig_funnel.update_layout(**PLOT_CONFIG, title="Revenue Waterfall", height=320)
+        fig_funnel.update_layout(**PLOT_CONFIG, title="Revenue Potential", height=340)
         st.plotly_chart(fig_funnel, use_container_width=True)
     
     sc_df = pd.DataFrame({
         "Scenario": scenario_names,
         "Sales": scenario_sales,
         "Revenue": [f"€{r:,.0f}" for r in scenario_revenue],
-        "vs Baseline": [f"{s-scenario_sales[0]:+d}" for s in scenario_sales],
+        "Delta": [f"{s-scenario_sales[0]:+d}" for s in scenario_sales],
     })
     st.dataframe(sc_df, use_container_width=True, hide_index=True)
 
 # ────────────────────────────────────────────────────────────────────────────
-# TAB 4: SIMULATION
+# TAB 4: FORECAST SIMULATION
 # ────────────────────────────────────────────────────────────────────────────
 with tabs[3]:
     col_sim_opts, col_sim_chart = st.columns([1, 3])
     
     with col_sim_opts:
-        sim_days = st.slider("Days", 7, 365, 60)
-        sim_noise = st.slider("Noise", 0, 30, 8)
-        trend_mode = st.selectbox("Trend", ["Neutral", "Growth", "Decline"])
-        show_mc = st.checkbox("Monte Carlo")
+        sim_days = st.slider("Time Horizon", 7, 365, 60)
+        sim_noise = st.slider("Volatility", 0, 30, 8)
+        trend_mode = st.selectbox("Trend Type", ["Neutral", "Growth", "Decline"])
+        show_mc = st.checkbox("Monte Carlo Paths")
         show_raw = st.checkbox("Raw Data")
     
     with col_sim_chart:
@@ -705,22 +818,22 @@ with tabs[3]:
             for seed in range(10):
                 rng_mc = np.random.default_rng(seed + 100)
                 mc_path = [int(max(0, sales_pred*trend_factor + rng_mc.normal(0, sim_noise*2))) for _ in range(sim_days)]
-                fig_sim.add_trace(go.Scatter(x=sim_dates, y=mc_path, mode="lines", line=dict(color="rgba(0,132,255,0.08)", width=0.8), showlegend=False))
+                fig_sim.add_trace(go.Scatter(x=sim_dates, y=mc_path, mode="lines", line=dict(color="rgba(0,102,255,0.06)", width=0.8), showlegend=False, hoverinfo="skip"))
         
         fig_sim.add_trace(go.Scatter(
             x=sim_dates, y=sim_sales, mode="lines",
             line=dict(color=C_PRIMARY, width=2.5),
-            name="Forecast"
+            name="Base Forecast"
         ))
-        fig_sim.add_hline(y=sales_pred, line_dash="dash", line_color="rgba(255,255,255,0.2)")
-        fig_sim.update_layout(**PLOT_CONFIG, title=f"{sim_days}-Day Simulation", height=350)
+        fig_sim.add_hline(y=sales_pred, line_dash="dash", line_color="rgba(0,0,0,0.15)", annotation_text="Current")
+        fig_sim.update_layout(**PLOT_CONFIG, title=f"{sim_days}-Day Projection", height=360)
         st.plotly_chart(fig_sim, use_container_width=True)
     
     k1, k2, k3, k4 = st.columns(4)
-    k1.metric("Avg", f"{np.mean(sim_sales):.0f}")
-    k2.metric("Peak", f"{max(sim_sales)}")
-    k3.metric("Min", f"{min(sim_sales)}")
-    k4.metric("Total Rev.", f"€{sum(sim_sales)*price:,.0f}")
+    k1.metric("Average", f"{np.mean(sim_sales):.0f} units")
+    k2.metric("Peak", f"{max(sim_sales)} units")
+    k3.metric("Minimum", f"{min(sim_sales)} units")
+    k4.metric("Total Revenue", f"€{sum(sim_sales)*price:,.0f}")
     
     if show_raw:
         sim_df = pd.DataFrame({
@@ -731,88 +844,106 @@ with tabs[3]:
         st.dataframe(sim_df, use_container_width=True, hide_index=True)
 
 # ────────────────────────────────────────────────────────────────────────────
-# TAB 5: RISK
+# TAB 5: RISK ASSESSMENT
 # ────────────────────────────────────────────────────────────────────────────
 with tabs[4]:
     col_risk1, col_risk2 = st.columns(2)
     
     with col_risk1:
-        st.subheader("Risk Indicators")
+        st.markdown('<div class="section-header">Risk Indicators</div>', unsafe_allow_html=True)
         risks = {
-            "Demand": min(100, abs(delta_pct)*2),
-            "Capacity": min(100, int(sales_pred/1.5)),
+            "Demand Volatility": min(100, abs(delta_pct)*2),
+            "Capacity Pressure": min(100, int(sales_pred/1.5)),
             "Competition": int(competition*100),
-            "Weather": int(rain/60*100),
-            "Energy": int(max(0, (energy-100)/120*100)),
+            "Weather Impact": int(rain/60*100),
+            "Energy Constraints": int(max(0, (energy-100)/120*100)),
         }
         for name, val in risks.items():
-            level = "Low" if val<40 else ("Med" if val<70 else "High")
-            color = C_SUCCESS if val<40 else (C_WARNING if val<70 else C_DANGER)
-            st.markdown(f"<div style='margin:0.5rem 0;'><div style='font-size:0.75rem; display:flex; justify-content:space-between; margin-bottom:0.2rem;'><span>{name}</span><span style='color:{color}; font-family:monospace;'>{val}% {level}</span></div><div style='width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;'><div style='width:{val}%; height:100%; background:linear-gradient(90deg, {color}, rgba(0,212,255,0.5));'></div></div></div>", unsafe_allow_html=True)
+            if val < 40:
+                level, color = "Low Risk", C_SUCCESS
+            elif val < 70:
+                level, color = "Medium Risk", C_WARNING
+            else:
+                level, color = "High Risk", C_DANGER
+            
+            st.markdown(f"""
+            <div style='margin-bottom:1rem;'>
+                <div class='risk-label'>
+                    <span>{name}</span>
+                    <span style='color:{color}; font-weight:700;'>{val}%</span>
+                </div>
+                <div class='risk-bar-container'>
+                    <div class='risk-bar-fill' style='width:{val}%; background:linear-gradient(90deg, {color}, rgba(0,102,255,0.3));'></div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
     
     with col_risk2:
-        st.subheader("Recommendations")
+        st.markdown('<div class="section-header">Recommendations</div>', unsafe_allow_html=True)
         alerts = []
         if budget < 100:
-            alerts.append(("warning", "Low ad budget – increase spend"))
+            alerts.append(("warning", "Increase marketing budget for better reach"))
         if competition > 0.6:
-            alerts.append(("danger", "High competition – differentiate"))
+            alerts.append(("danger", "High competition – implement differentiation strategy"))
         if rain > 30:
-            alerts.append(("warning", "Heavy rain – adjust logistics"))
+            alerts.append(("warning", "Unfavorable weather – optimize logistics"))
         if energy > 150:
-            alerts.append(("danger", "Energy crisis – review costs"))
+            alerts.append(("danger", "Energy constraints – review cost structure"))
         if satisfaction < 6:
-            alerts.append(("danger", "Low satisfaction – urgent action"))
+            alerts.append(("danger", "Customer satisfaction critical – immediate action needed"))
         if not alerts:
-            alerts.append(("success", "All parameters optimal"))
+            alerts.append(("success", "Risk profile optimized – proceed as planned"))
         
         for lvl, txt in alerts:
             css_class = "alert-success" if lvl=="success" else ("alert-warning" if lvl=="warning" else "alert-danger")
             st.markdown(f'<div class="alert-box {css_class}">{txt}</div>', unsafe_allow_html=True)
 
 # ────────────────────────────────────────────────────────────────────────────
-# TAB 6: MODEL
+# TAB 6: MODEL DETAILS
 # ────────────────────────────────────────────────────────────────────────────
 with tabs[5]:
     col_m1, col_m2, col_m3, col_m4 = st.columns(4)
-    col_m1.metric("MAE", metrics["mae"])
-    col_m2.metric("RMSE", metrics["rmse"])
-    col_m3.metric("MAPE", f"{metrics['mape']}%")
-    col_m4.metric("R² Score", metrics["r2"])
+    col_m1.metric("MAE", metrics["mae"], "units")
+    col_m2.metric("RMSE", metrics["rmse"], "units")
+    col_m3.metric("MAPE", f"{metrics['mape']}%", "error")
+    col_m4.metric("R² Score", f"{metrics['r2']:.4f}", "accuracy")
     
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
     
     col_arch, col_imp = st.columns(2)
     with col_arch:
-        st.subheader("Architecture")
+        st.markdown('<div class="section-header">Neural Network Architecture</div>', unsafe_allow_html=True)
         arch = pd.DataFrame({
             "Layer": ["Input", "Hidden 1", "Hidden 2", "Hidden 3", "Output"],
-            "Neurons": [16, 128, 64, 32, 1],
-            "Activation": ["-", "ReLU", "ReLU", "ReLU", "Linear"],
+            "Units": [16, 128, 64, 32, 1],
+            "Activation": ["—", "ReLU", "ReLU", "ReLU", "Linear"],
+            "Parameters": ["—", "2,176", "8,320", "2,080", "33"],
         })
         st.dataframe(arch, use_container_width=True, hide_index=True)
     
     with col_imp:
-        st.subheader("Feature Importance")
+        st.markdown('<div class="section-header">Feature Importance</div>', unsafe_allow_html=True)
         feat_imp = pd.DataFrame({
             "Feature": ["Event", "Holiday", "Budget", "Weekday", "Social", "Satisfaction", "TV", "Month", "Rain", "Delivery", "Temp", "Energy", "Competition", "Quarter", "Dayofyear", "Sun"],
             "Importance": [0.20, 0.15, 0.13, 0.11, 0.09, 0.08, 0.07, 0.06, 0.05, 0.05, 0.04, 0.03, 0.03, 0.02, 0.02, 0.02],
         }).sort_values("Importance", ascending=True)
         
         fig_imp = px.bar(feat_imp, x="Importance", y="Feature", orientation="h",
-                         color="Importance", color_continuous_scale=[[0,"#141d2e"],[1,"#0084ff"]])
-        fig_imp.update_layout(**PLOT_CONFIG, height=320, showlegend=False)
+                         color="Importance", color_continuous_scale=[[0,"#f5f5f7"],[1,"#0066ff"]])
+        fig_imp.update_layout(**PLOT_CONFIG, height=340, showlegend=False)
         st.plotly_chart(fig_imp, use_container_width=True)
     
-    st.subheader("Validation")
+    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Model Validation</div>', unsafe_allow_html=True)
+    
     test_size = min(200, len(hist_data))
     test_data = hist_data.tail(test_size)
     test_pred = model.predict(scaler.transform(test_data[features].values))
     
     fig_val = go.Figure()
-    fig_val.add_trace(go.Scatter(x=test_data["date"], y=test_data["sales"], mode="lines", name="Actual", line=dict(color=C_PRIMARY)))
-    fig_val.add_trace(go.Scatter(x=test_data["date"], y=test_pred.astype(int), mode="lines", name="Predicted", line=dict(color=C_SUCCESS, dash="dot")))
-    fig_val.update_layout(**PLOT_CONFIG, title=f"Last {test_size} Days", height=280)
+    fig_val.add_trace(go.Scatter(x=test_data["date"], y=test_data["sales"], mode="lines", name="Actual Sales", line=dict(color=C_PRIMARY, width=2)))
+    fig_val.add_trace(go.Scatter(x=test_data["date"], y=test_pred.astype(int), mode="lines", name="Predicted Sales", line=dict(color=C_SUCCESS, dash="dash", width=2)))
+    fig_val.update_layout(**PLOT_CONFIG, title=f"Last {test_size} Days Validation", height=300)
     st.plotly_chart(fig_val, use_container_width=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -820,6 +951,6 @@ with tabs[5]:
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <div class="footer">
-OpenBrain Intelligence Platform · Enterprise Grade Demand Forecasting · 2024-2026
+OpenBrain Intelligence Platform | Neural Demand Forecasting | Enterprise Edition 2024–2026
 </div>
 """, unsafe_allow_html=True)
