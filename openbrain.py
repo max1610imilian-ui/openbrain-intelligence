@@ -1,6 +1,6 @@
 """
-OpenBrain · Neural Demand Predictor
-Enterprise-grade demand forecasting with real-time ML analysis
+OpenBrain Neural Demand Predictor
+Enterprise-Grade Demand Forecasting Dashboard
 """
 
 import datetime
@@ -14,339 +14,357 @@ from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import warnings
+warnings.filterwarnings('ignore')
 
 # ══════════════════════════════════════════════════════════════════════════════
-# PAGE CONFIG
+# PAGE CONFIGURATION
 # ══════════════════════════════════════════════════════════════════════════════
 st.set_page_config(
-    page_title="OpenBrain Demand Intelligence",
+    page_title="OpenBrain Demand Predictor",
     page_icon="◈",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # ══════════════════════════════════════════════════════════════════════════════
-# CSS STYLING (Dark/Light Mode Compatible)
+# THEME-AWARE CSS
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
     color-scheme: light dark;
 }
 
-/* Dark Mode (Default) */
+/* Dark Mode Variables */
 html, body, .stApp {
-    --bg-dark: #0a0e1f;
-    --bg-card: #0f1629;
-    --bg-input: #141d2e;
-    --border: rgba(255,255,255,0.07);
+    --bg:           #0a0e1f;
+    --bg-light:     #0f1629;
+    --bg-input:     #141d2e;
+    --border:       rgba(255,255,255,0.07);
     --border-hover: rgba(255,255,255,0.15);
-    --accent: #0084ff;
-    --accent-alt: #00d4aa;
-    --accent-warn: #ffa500;
-    --accent-danger: #ff4757;
-    --text-main: #e8eef5;
-    --text-sec: #a8b5c8;
-    --text-muted: #6b7585;
+    --text-primary: #e8eef5;
+    --text-secondary: #a8b5c8;
+    --text-muted:   #6b7585;
+    --accent-1:     #0084ff;
+    --accent-2:     #00d4aa;
 }
 
-/* Light Mode */
+/* Light Mode Variables */
 @media (prefers-color-scheme: light) {
     html, body, .stApp {
-        --bg-dark: #ffffff;
-        --bg-card: #f8f9fb;
-        --bg-input: #f0f2f6;
-        --border: rgba(0,0,0,0.08);
+        --bg:           #ffffff;
+        --bg-light:     #f8f9fb;
+        --bg-input:     #f0f2f6;
+        --border:       rgba(0,0,0,0.08);
         --border-hover: rgba(0,0,0,0.15);
-        --accent: #0066ff;
-        --accent-alt: #00a878;
-        --accent-warn: #ff9500;
-        --accent-danger: #ff5a5a;
-        --text-main: #1a202c;
-        --text-sec: #475569;
-        --text-muted: #94a3b8;
+        --text-primary: #1a202c;
+        --text-secondary: #475569;
+        --text-muted:   #94a3b8;
+        --accent-1:     #0066ff;
+        --accent-2:     #00a878;
     }
 }
 
 * { box-sizing: border-box; }
 
-html, body, .stApp {
-    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-card) 100%);
-    color: var(--text-main);
+html, body {
     font-family: 'Space Grotesk', sans-serif;
 }
 
-.main .block-container {
-    max-width: 1800px;
-    padding: 2rem 2.5rem;
+.stApp {
+    background: var(--bg);
+    color: var(--text-primary);
 }
 
+/* Sidebar */
 [data-testid="stSidebar"] {
-    background: rgba(20,29,46,0.4);
-    backdrop-filter: blur(10px);
+    background: var(--bg-light);
     border-right: 1px solid var(--border);
 }
 
+/* Main Container */
+.main .block-container {
+    padding: 2rem;
+    max-width: 1400px;
+}
+
+/* Expanders */
 [data-testid="stExpander"] {
     background: transparent;
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 8px;
     margin-bottom: 0.75rem;
 }
 
 [data-testid="stExpander"] summary {
-    padding: 0.8rem 1rem;
-    background: rgba(20,29,46,0.5);
-    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    background: var(--bg-light);
+    border-radius: 8px;
     font-weight: 600;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
+    font-size: 0.8rem;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
     color: var(--text-muted);
     cursor: pointer;
-    transition: all 0.2s ease;
 }
 
 [data-testid="stExpander"] summary:hover {
-    background: rgba(20,29,46,0.8);
+    background: var(--bg-light);
     border-color: var(--border-hover);
 }
 
+/* Input Fields */
 .stSelectbox > div > div,
-.stNumberInput > div > div > input {
+.stNumberInput > div > div > input,
+.stSlider > div > div > div {
     background: var(--bg-input) !important;
     border: 1px solid var(--border) !important;
-    border-radius: 8px !important;
-    color: var(--text-main) !important;
-    font-size: 0.85rem !important;
+    border-radius: 6px !important;
+    color: var(--text-primary) !important;
 }
 
 .stSelectbox > div > div:focus-within {
-    border-color: var(--accent) !important;
-    box-shadow: 0 0 0 3px rgba(0,132,255,0.1) !important;
+    border-color: var(--accent-1) !important;
+    box-shadow: 0 0 0 2px rgba(0, 132, 255, 0.1) !important;
 }
 
+/* Slider */
 [data-testid="stSlider"] input {
-    accent-color: var(--accent) !important;
+    accent-color: var(--accent-1) !important;
 }
 
+/* Checkbox */
 .stCheckbox label {
-    color: var(--text-main) !important;
+    color: var(--text-primary) !important;
+    cursor: pointer;
 }
 
+/* Tabs */
 .stTabs [data-baseweb="tab-list"] {
     border-bottom: 2px solid var(--border);
+    background: transparent;
 }
 
 .stTabs [data-baseweb="tab"] {
-    color: var(--text-sec) !important;
+    background: transparent !important;
+    color: var(--text-secondary) !important;
     font-weight: 600;
-    font-size: 0.85rem;
+    border: none !important;
 }
 
 .stTabs [aria-selected="true"] {
-    color: var(--accent) !important;
-    border-bottom: 3px solid var(--accent) !important;
+    color: var(--accent-1) !important;
+    border-bottom: 3px solid var(--accent-1) !important;
 }
 
+/* Metrics */
 [data-testid="stMetricContainer"] {
-    background: rgba(20,29,46,0.6);
-    backdrop-filter: blur(10px);
+    background: var(--bg-light);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.25rem;
-    transition: all 0.3s ease;
-}
-
-[data-testid="stMetricContainer"]:hover {
-    border-color: var(--border-hover);
-    background: rgba(20,29,46,0.9);
+    border-radius: 8px;
+    padding: 1rem;
 }
 
 [data-testid="stMetricLabel"] {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    color: var(--text-muted);
     text-transform: uppercase;
+    color: var(--text-muted);
 }
 
 [data-testid="stMetricValue"] {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 600;
-    color: var(--text-main);
-    margin-top: 0.35rem;
+    color: var(--text-primary);
 }
 
+/* Buttons */
 .stButton > button {
-    background: linear-gradient(135deg, var(--accent), #00d4ff);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    padding: 0.6rem 1.5rem;
-    transition: all 0.2s ease;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
 }
 
 .stButton > button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,132,255,0.2);
+    opacity: 0.9 !important;
 }
 
+/* DataFrames */
 [data-testid="stDataFrame"] {
-    background: rgba(20,29,46,0.5);
+    background: var(--bg-light);
     border: 1px solid var(--border);
-    border-radius: 10px;
 }
 
+/* Custom Cards */
 .glass-card {
-    background: rgba(20,29,46,0.6);
-    backdrop-filter: blur(10px);
+    background: var(--bg-light);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 8px;
     padding: 1.5rem;
 }
 
+.alert-info {
+    background: rgba(0, 132, 255, 0.08);
+    border-left: 4px solid var(--accent-1);
+    padding: 1rem;
+    border-radius: 6px;
+    color: var(--text-primary);
+}
+
+.alert-success {
+    background: rgba(0, 212, 170, 0.08);
+    border-left: 4px solid var(--accent-2);
+    padding: 1rem;
+    border-radius: 6px;
+    color: var(--text-primary);
+}
+
+.alert-warning {
+    background: rgba(255, 165, 0, 0.08);
+    border-left: 4px solid #ff9500;
+    padding: 1rem;
+    border-radius: 6px;
+    color: var(--text-primary);
+}
+
+.alert-danger {
+    background: rgba(255, 87, 90, 0.08);
+    border-left: 4px solid #ff5a5a;
+    padding: 1rem;
+    border-radius: 6px;
+    color: var(--text-primary);
+}
+
 .status-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.4rem 0.9rem;
-    border-radius: 20px;
-    font-size: 0.7rem;
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.65rem;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    text-transform: uppercase;
     border: 1px solid;
     margin-right: 0.5rem;
 }
 
 .badge-live {
-    background: rgba(0,212,170,0.1);
-    color: var(--accent-alt);
-    border-color: rgba(0,212,170,0.3);
+    background: rgba(0, 212, 170, 0.1);
+    color: var(--accent-2);
+    border-color: var(--accent-2);
 }
 
 .badge-info {
-    background: rgba(0,132,255,0.1);
-    color: var(--accent);
-    border-color: rgba(0,132,255,0.3);
-}
-
-.alert-box {
-    padding: 1rem 1.25rem;
-    border-radius: 10px;
-    border-left: 4px solid;
-    margin: 0.75rem 0;
-    font-size: 0.85rem;
-}
-
-.alert-success {
-    background: rgba(0,212,170,0.08);
-    border-color: var(--accent-alt);
-    color: var(--text-main);
-}
-
-.alert-warning {
-    background: rgba(255,165,0,0.08);
-    border-color: var(--accent-warn);
-    color: var(--text-main);
-}
-
-.alert-danger {
-    background: rgba(255,71,87,0.08);
-    border-color: var(--accent-danger);
-    color: var(--text-main);
+    background: rgba(0, 132, 255, 0.1);
+    color: var(--accent-1);
+    border-color: var(--accent-1);
 }
 
 .divider {
     height: 1px;
-    background: linear-gradient(to right, transparent, var(--border), transparent);
-    margin: 2rem 0;
+    background: var(--border);
+    margin: 1.5rem 0;
 }
 
-.footer {
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 0.75rem;
-    padding: 2rem 0;
-    border-top: 1px solid var(--border);
-    margin-top: 3rem;
+.header-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
 }
+
+.header-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
-# LOAD MODEL (Single cache for fast loading)
+# MODEL TRAINING (CACHED)
 # ══════════════════════════════════════════════════════════════════════════════
-
 @st.cache_resource
-def load_model():
-    """Load or train model once"""
+def train_model():
+    """Train neural network on synthetic data (cached permanently)"""
     np.random.seed(42)
-    TAGE = 1500
-    rng = np.random.default_rng(42)
-    dates = pd.date_range("2018-01-01", periods=TAGE)
+    n_days = 1500
+    dates = pd.date_range("2020-01-01", periods=n_days)
     
-    temp = rng.normal(13, 11, TAGE).clip(-15, 42)
-    rain = rng.exponential(1.8, TAGE).clip(0, 60)
-    season = np.sin(2*np.pi*dates.month/12)*12 + np.cos(2*np.pi*dates.dayofyear/365)*5
+    # Generate features
+    temp = np.random.normal(12, 10, n_days).clip(-15, 42)
+    rain = np.random.exponential(2, n_days).clip(0, 60)
+    season = np.sin(2 * np.pi * dates.month / 12) * 15
     
     df = pd.DataFrame({
         "date": dates,
         "weekday": dates.weekday,
         "month": dates.month,
         "quarter": dates.quarter,
-        "dayofyear": dates.dayofyear,
-        "temp": temp,
-        "rain": rain,
-        "sun": (rng.uniform(0, 14, TAGE) * (1 - rain/80)).clip(0, 14),
-        "holiday": rng.choice([0, 1], TAGE, p=[0.78, 0.22]),
-        "event": rng.choice([0, 1], TAGE, p=[0.94, 0.06]),
-        "budget": rng.uniform(0, 800, TAGE),
-        "tv": rng.uniform(0, 100, TAGE),
-        "social": rng.uniform(0, 10, TAGE),
-        "energy": rng.normal(105, 18, TAGE).clip(50, 220),
-        "competition": rng.uniform(0, 1, TAGE),
-        "satisfaction": rng.normal(7.5, 1.2, TAGE).clip(1, 10),
-        "delivery": rng.uniform(0.6, 1.0, TAGE),
-        "season": season,
+        "day_of_year": dates.dayofyear,
+        "temperature": temp,
+        "rainfall": rain,
+        "sunshine": (np.random.uniform(0, 12, n_days) * (1 - rain / 80)).clip(0, 12),
+        "holiday": np.random.choice([0, 1], n_days, p=[0.8, 0.2]),
+        "event": np.random.choice([0, 1], n_days, p=[0.95, 0.05]),
+        "ad_budget": np.random.uniform(50, 600, n_days),
+        "tv_reach": np.random.uniform(0, 80, n_days),
+        "social": np.random.uniform(0, 8, n_days),
+        "energy_index": np.random.normal(100, 15, n_days).clip(50, 180),
+        "competition": np.random.uniform(0, 1, n_days),
+        "satisfaction": np.random.normal(7.5, 1, n_days).clip(1, 10),
+        "delivery": np.random.uniform(0.65, 1, n_days),
     })
     
-    base = 55 + df["season"]
-    effect = (
-        (df["weekday"] >= 4).astype(int) * 18 +
-        np.log1p(df["budget"]) * 2.8 -
-        df["rain"] * 0.6 +
-        df["sun"] * 1.1 +
-        df["event"] * 52 +
+    # Target: demand
+    base = 50 + season
+    demand = (
+        base +
+        (df["weekday"] >= 5).astype(int) * 15 +
+        np.log1p(df["ad_budget"]) * 2.5 -
+        df["rainfall"] * 0.5 +
+        df["sunshine"] +
+        df["event"] * 40 +
         df["holiday"] * 8 -
-        df["competition"] * 22 +
-        df["social"] * 1.5 +
-        df["tv"] * 0.12 +
-        df["satisfaction"] * 2.8 +
-        df["delivery"] * 12 -
-        np.maximum(0, df["energy"] - 100) * 0.08
-    )
+        df["competition"] * 20 +
+        df["social"] +
+        df["tv_reach"] * 0.1 +
+        df["satisfaction"] * 2 +
+        df["delivery"] * 10 -
+        np.maximum(0, df["energy_index"] - 100) * 0.05 +
+        np.random.normal(0, 4, n_days)
+    ).astype(int).clip(0, None)
     
-    df["sales"] = (base + effect + rng.normal(0, 5, TAGE)).astype(int).clip(0)
-    df["revenue"] = (df["sales"] * rng.uniform(3.8, 5.5, TAGE)).round(2)
-    df["margin"] = (df["revenue"] * rng.uniform(0.18, 0.38, TAGE)).round(2)
+    df["demand"] = demand
+    df["revenue"] = (demand * np.random.uniform(3, 6, n_days)).round(2)
     
-    features = ["weekday", "month", "quarter", "dayofyear", "temp", "rain", "sun",
-                "holiday", "event", "budget", "tv", "social", "energy", "competition",
-                "satisfaction", "delivery"]
+    features = [
+        "weekday", "month", "quarter", "day_of_year",
+        "temperature", "rainfall", "sunshine",
+        "holiday", "event", "ad_budget", "tv_reach", "social",
+        "energy_index", "competition", "satisfaction", "delivery"
+    ]
     
     X = df[features].values
-    y = df["sales"].values
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    y = df["demand"].values
+    
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
     
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
     
     model = MLPRegressor(
-        hidden_layer_sizes=(128, 64, 32),
+        hidden_layer_sizes=(128, 64),
         activation="relu",
         solver="adam",
         max_iter=1000,
@@ -354,8 +372,8 @@ def load_model():
         validation_fraction=0.2,
         n_iter_no_change=20,
         random_state=42,
-        alpha=0.001,
-        batch_size=32
+        alpha=0.0005,
+        batch_size=32,
     )
     model.fit(X_train_scaled, y_train)
     
@@ -363,463 +381,407 @@ def load_model():
     metrics = {
         "mae": round(mean_absolute_error(y_test, y_pred), 2),
         "rmse": round(np.sqrt(mean_squared_error(y_test, y_pred)), 2),
-        "r2": round(r2_score(y_test, y_pred), 4),
+        "r2": round(r2_score(y_test, y_pred), 3),
         "mape": round(np.mean(np.abs((y_test - y_pred) / (y_test + 1))) * 100, 2),
     }
     
     return model, scaler, df, features, metrics
 
-model, scaler, hist_data, features, metrics = load_model()
+# Load model
+with st.spinner("Loading model..."):
+    model, scaler, data_hist, features, metrics = train_model()
 
 # ══════════════════════════════════════════════════════════════════════════════
-# PLOTLY TEMPLATE
+# PLOTLY THEME
 # ══════════════════════════════════════════════════════════════════════════════
-PLOT_CONFIG = dict(
+layout = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
     font=dict(family="Space Grotesk", color="#a8b5c8", size=11),
-    xaxis=dict(gridcolor="rgba(255,255,255,0.05)", linecolor="rgba(255,255,255,0.08)"),
-    yaxis=dict(gridcolor="rgba(255,255,255,0.05)", linecolor="rgba(255,255,255,0.08)"),
-    margin=dict(l=40, r=15, t=40, b=25),
+    xaxis=dict(
+        gridcolor="rgba(255,255,255,0.05)",
+        showline=False,
+        tickfont=dict(color="#6b7585", size=10)
+    ),
+    yaxis=dict(
+        gridcolor="rgba(255,255,255,0.05)",
+        showline=False,
+        tickfont=dict(color="#6b7585", size=10)
+    ),
+    margin=dict(l=40, r=20, t=40, b=30),
     hovermode="x unified",
+    showlegend=True,
 )
 
-C_PRIMARY = "#0084ff"
-C_SUCCESS = "#00d4aa"
-C_WARNING = "#ffa500"
-C_DANGER = "#ff4757"
-C_INFO = "#ffd60a"
+colors = {
+    "primary": "#0084ff",
+    "secondary": "#00d4aa",
+    "warning": "#ff9500",
+    "danger": "#ff5a5a"
+}
 
 # ══════════════════════════════════════════════════════════════════════════════
 # HEADER
 # ══════════════════════════════════════════════════════════════════════════════
-time_str = datetime.datetime.now().strftime("%d.%m | %H:%M")
-
-st.markdown(f"""
-<div style="
-    background: rgba(20,29,46,0.6);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-">
-    <div style="display:flex; align-items:center; gap:1rem;">
-        <div style="
-            width: 40px; height: 40px;
-            background: linear-gradient(135deg, #0084ff, #00d4ff);
-            border-radius: 10px;
-            display: flex; align-items:center; justify-content:center;
-            color: white; font-weight: 700; font-size: 1.2rem;
-        ">◈</div>
-        <div>
-            <div style="font-size: 0.65rem; color: #6b7585; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.2rem;">
-                OpenBrain Intelligence
-            </div>
-            <div style="font-size: 1.2rem; font-weight: 700; color: #e8eef5;">
-                Neural Demand Predictor
-            </div>
-        </div>
-    </div>
-    
-    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-        <span class="status-badge badge-live">LIVE</span>
+st.markdown("""
+<div style="margin-bottom: 2rem;">
+    <div class="header-subtitle">OpenBrain Intelligence</div>
+    <div class="header-title">Neural Demand Predictor</div>
+    <div style="margin-top: 0.5rem;">
+        <span class="status-badge badge-live">Live</span>
         <span class="status-badge badge-info">MLP</span>
-        <span class="status-badge badge-info">R² = {metrics['r2']}</span>
-        <span style="font-size: 0.7rem; color: #6b7585; font-family: monospace; margin-left: 0.5rem;">{time_str}</span>
+        <span class="status-badge badge-info">R² = """ + str(metrics["r2"]) + """</span>
     </div>
 </div>
+<div class="divider"></div>
 """, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
-# SIDEBAR
+# SIDEBAR INPUTS
 # ══════════════════════════════════════════════════════════════════════════════
 with st.sidebar:
-    st.markdown("<div style='font-size:0.75rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#6b7585; margin-bottom:1rem;'>Input Parameters</div>", unsafe_allow_html=True)
+    st.markdown("#### Input Parameters")
     
-    with st.expander("Time & Weather", expanded=True):
-        day_names = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
-        day_sel = st.selectbox("Day", day_names, label_visibility="collapsed")
-        day_idx = day_names.index(day_sel)
-        month = st.slider("Month", 1, 12, datetime.date.today().month, label_visibility="collapsed")
-        quarter = ((month - 1) // 3) + 1
-        dayofyear = (datetime.date(2024, month, 15) - datetime.date(2024, 1, 1)).days + 15
-        temp = st.slider("Temperature (°C)", -15, 45, 15, label_visibility="collapsed")
-        rain = st.slider("Rainfall (mm)", 0, 60, 5, label_visibility="collapsed")
-        sun = st.slider("Sunshine (h)", 0.0, 14.0, 7.0, step=0.5, label_visibility="collapsed")
+    with st.expander("Date & Weather", expanded=True):
+        day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        selected_day = st.selectbox("Day", day_names, label_visibility="collapsed")
+        day_idx = day_names.index(selected_day)
+        
+        month = st.slider("Month", 1, 12, 6, label_visibility="collapsed")
+        quarter = (month - 1) // 3 + 1
+        day_of_year = (pd.Timestamp(2024, month, 15) - pd.Timestamp(2024, 1, 1)).days + 15
+        
+        temp = st.slider("Temperature (C)", -15, 45, 15, label_visibility="collapsed")
+        rain = st.slider("Rainfall (mm)", 0, 60, 10, label_visibility="collapsed")
+        sun = st.slider("Sunshine (h)", 0, 12, 6, 0.5, label_visibility="collapsed")
     
     with st.expander("Market & Ads"):
-        budget = st.slider("Ad Budget (€)", 0, 800, 200, label_visibility="collapsed")
-        tv = st.slider("TV Reach", 0, 100, 40, label_visibility="collapsed")
-        social = st.slider("Social Reach", 0.0, 10.0, 5.0, step=0.1, label_visibility="collapsed")
-        energy = st.slider("Energy Index", 50, 220, 105, label_visibility="collapsed")
-        competition = st.slider("Competition", 0.0, 1.0, 0.3, step=0.05, label_visibility="collapsed")
+        ad_budget = st.slider("Ad Budget (EUR)", 0, 600, 250, label_visibility="collapsed")
+        tv = st.slider("TV Reach", 0, 80, 30, label_visibility="collapsed")
+        social = st.slider("Social Reach", 0, 8, 4, 0.1, label_visibility="collapsed")
+        energy = st.slider("Energy Index", 50, 180, 100, label_visibility="collapsed")
+        comp = st.slider("Competition", 0.0, 1.0, 0.3, 0.05, label_visibility="collapsed")
     
     with st.expander("Quality & Ops"):
-        satisfaction = st.slider("Satisfaction", 1.0, 10.0, 7.5, step=0.1, label_visibility="collapsed")
-        delivery = st.slider("Delivery", 0.6, 1.0, 0.90, step=0.05, label_visibility="collapsed")
-        holiday = st.checkbox("Holiday")
-        event = st.checkbox("Event")
+        satisfaction = st.slider("Satisfaction", 1, 10, 7.5, 0.1, label_visibility="collapsed")
+        delivery = st.slider("Delivery Ready", 0.6, 1.0, 0.85, 0.05, label_visibility="collapsed")
+        is_holiday = st.checkbox("Holiday")
+        is_event = st.checkbox("Event")
     
     with st.expander("Pricing"):
-        price = st.slider("Price per Unit (€)", 1.0, 20.0, 4.50, step=0.10, label_visibility="collapsed")
-        margin_pct = st.slider("Margin (%)", 10, 50, 28, label_visibility="collapsed")
+        price = st.slider("Price (EUR)", 1, 20, 4.5, 0.1, label_visibility="collapsed")
+        margin_pct = st.slider("Margin (%)", 10, 50, 25, label_visibility="collapsed")
+    
+    st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
+    st.markdown("#### Model Quality")
+    col1, col2 = st.columns(2)
+    col1.metric("MAE", metrics["mae"])
+    col2.metric("RMSE", metrics["rmse"])
+    col1.metric("MAPE", f"{metrics['mape']}%")
+    col2.metric("R2", metrics["r2"])
 
 # ══════════════════════════════════════════════════════════════════════════════
-# FORECAST
+# PREDICTION
 # ══════════════════════════════════════════════════════════════════════════════
 input_data = np.array([[
-    day_idx, month, quarter, dayofyear, temp, rain, sun,
-    int(holiday), int(event), budget, tv, social, energy, competition, satisfaction, delivery
+    day_idx, month, quarter, day_of_year,
+    temp, rain, sun,
+    int(is_holiday), int(is_event),
+    ad_budget, tv, social,
+    energy, comp, satisfaction, delivery
 ]])
 
-sales_pred = int(max(0, model.predict(scaler.transform(input_data))[0]))
-revenue = sales_pred * price
-contribution = revenue * (margin_pct / 100)
-conf_low = int(sales_pred * 0.90)
-conf_high = int(sales_pred * 1.10)
+demand = int(max(0, model.predict(scaler.transform(input_data))[0]))
+revenue = demand * price
+margin = revenue * (margin_pct / 100)
+confidence_low = int(demand * 0.9)
+confidence_high = int(demand * 1.1)
 
-hist_month_avg = int(hist_data[hist_data["month"] == month]["sales"].mean())
-delta_pct = round((sales_pred - hist_month_avg) / (hist_month_avg + 1) * 100, 1)
+# Historical baseline
+hist_baseline = int(data_hist[data_hist["month"] == month]["demand"].mean())
+delta_pct = ((demand - hist_baseline) / (hist_baseline + 1) * 100) if hist_baseline > 0 else 0
 
 # ══════════════════════════════════════════════════════════════════════════════
-# MAIN CONTENT
+# MAIN DASHBOARD
 # ══════════════════════════════════════════════════════════════════════════════
-tabs = st.tabs(["Dashboard", "Market Analysis", "Scenarios", "Simulation", "Risk", "Model"])
+col1, col2, col3 = st.columns(3)
+col1.metric("Demand Forecast", f"{demand} units", f"{delta_pct:+.1f}% YoY")
+col2.metric("Revenue", f"EUR {revenue:,.0f}", f"@ EUR {price:.2f}/unit")
+col3.metric("Contribution", f"EUR {margin:,.0f}", f"{margin_pct}% margin")
 
-# ────────────────────────────────────────────────────────────────────────────
+col4, col5, col6 = st.columns(3)
+col4.metric("95% Band", f"{confidence_low}-{confidence_high}", "Confidence")
+col5.metric("Capacity", f"{min(100, int(demand / 1.5))}%", "Utilization")
+col6.metric("Hist. Avg", f"{hist_baseline} units", f"Month {month}")
+
+st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TABS
+# ══════════════════════════════════════════════════════════════════════════════
+tabs = st.tabs(["Dashboard", "Market Analysis", "Scenarios", "Simulation", "Risk Analysis", "Model Info"])
+
 # TAB 1: DASHBOARD
-# ────────────────────────────────────────────────────────────────────────────
 with tabs[0]:
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Sales Forecast", f"{sales_pred} units", f"{delta_pct:+.1f}% YoY")
-    col2.metric("Revenue", f"€{revenue:,.0f}", f"@ €{price:.2f}")
-    col3.metric("Contribution", f"€{contribution:,.0f}", f"{margin_pct}% margin")
-    
-    col4, col5, col6 = st.columns(3)
-    col4.metric("95% Confidence", f"{conf_low}–{conf_high}", "Range")
-    col5.metric("Capacity", f"{min(100, int(sales_pred/1.5))}%", "Usage")
-    col6.metric("Profit Est.", f"€{contribution:,.0f}", "Gross")
-    
-    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-    
     col_left, col_right = st.columns([2, 1])
     
     with col_left:
-        # Status Alert
-        if sales_pred > 120:
-            st.markdown('<div class="alert-box alert-danger">Capacity Alert: Demand exceeds normal capacity</div>', unsafe_allow_html=True)
-        elif competition > 0.65:
-            st.markdown('<div class="alert-box alert-warning">Competition: Market pressure detected</div>', unsafe_allow_html=True)
-        elif sales_pred < 30:
-            st.markdown('<div class="alert-box alert-warning">Low Demand: Consider marketing boost</div>', unsafe_allow_html=True)
+        # Status
+        if demand > 120:
+            st.markdown(
+                '<div class="alert-danger">Capacity limit approaching. Scale resources.</div>',
+                unsafe_allow_html=True
+            )
+        elif comp > 0.6:
+            st.markdown(
+                '<div class="alert-warning">High competition. Review positioning.</div>',
+                unsafe_allow_html=True
+            )
         else:
-            st.markdown('<div class="alert-box alert-success">Optimal: All parameters normal</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="alert-success">Operating normally. All metrics optimal.</div>',
+                unsafe_allow_html=True
+            )
         
-        # Hourly Distribution
-        hours = list(range(7, 22))
-        rng_hour = np.random.default_rng(1)
-        hourly = (np.abs(rng_hour.normal(sales_pred/15, sales_pred/30, len(hours))).cumsum())
-        hourly = hourly / hourly.max() * sales_pred if hourly.max() > 0 else hourly
+        # Hourly distribution
+        hours = np.arange(7, 22)
+        hourly_demand = (np.abs(np.random.normal(demand / 15, demand / 30, len(hours))).cumsum())
+        hourly_demand = (hourly_demand / hourly_demand.max() * demand).astype(int)
         
-        fig_hour = go.Figure()
-        fig_hour.add_trace(go.Scatter(
-            x=hours, y=hourly.astype(int), fill="tozeroy", mode="lines",
-            line=dict(color=C_PRIMARY, width=2.5),
-            fillcolor="rgba(0,132,255,0.1)",
-            name="Hourly"
+        fig_hourly = go.Figure()
+        fig_hourly.add_trace(go.Scatter(
+            x=hours, y=hourly_demand,
+            fill="tozeroy", line=dict(color=colors["primary"], width=2),
+            fillcolor="rgba(0, 132, 255, 0.1)"
         ))
-        fig_hour.update_layout(**PLOT_CONFIG, title="Hourly Distribution", height=280)
-        fig_hour.update_xaxes(ticksuffix=":00")
-        st.plotly_chart(fig_hour, use_container_width=True)
+        fig_hourly.update_layout(**layout, title="Hourly Distribution", height=300)
+        st.plotly_chart(fig_hourly, use_container_width=True)
         
-        # 7-Day Forecast
-        day_short = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
-        rng_week = np.random.default_rng(42)
-        weekly = [int(max(0, sales_pred * rng_week.uniform(0.75, 1.25))) for _ in range(7)]
-        peak = max(weekly)
-        colors = [C_PRIMARY if v == peak else "rgba(0,132,255,0.25)" for v in weekly]
+        # 7-day forecast
+        day_labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        daily_forecast = [int(demand * np.random.uniform(0.8, 1.2)) for _ in range(7)]
         
-        fig_week = go.Figure(go.Bar(
-            x=day_short, y=weekly, marker_color=colors,
-            text=[str(v) for v in weekly], textposition="outside"
+        fig_daily = go.Figure(go.Bar(
+            x=day_labels, y=daily_forecast,
+            marker_color=colors["primary"]
         ))
-        fig_week.update_layout(**PLOT_CONFIG, title="7-Day Forecast", height=250, showlegend=False)
-        st.plotly_chart(fig_week, use_container_width=True)
+        fig_daily.update_layout(**layout, title="7-Day Forecast", height=300, showlegend=False)
+        st.plotly_chart(fig_daily, use_container_width=True)
     
     with col_right:
-        # Factors Radar
+        # Factor radar
         factors = ["Ads", "Temp", "Weekend", "Event", "Social", "Satisfaction", "Delivery"]
         values = [
-            budget / 800,
+            ad_budget / 600,
             (temp + 15) / 60,
             1.0 if day_idx >= 5 else 0.2,
-            1.0 if event else 0.04,
-            social / 10,
+            1.0 if is_event else 0.05,
+            social / 8,
             satisfaction / 10,
-            delivery,
+            delivery
         ]
         
         fig_radar = go.Figure(go.Scatterpolar(
-            r=values + [values[0]], theta=factors + [factors[0]],
+            r=values + [values[0]],
+            theta=factors + [factors[0]],
             fill="toself",
-            fillcolor="rgba(0,132,255,0.08)",
-            line=dict(color=C_PRIMARY, width=2),
+            fillcolor="rgba(0, 132, 255, 0.1)",
+            line=dict(color=colors["primary"], width=2)
         ))
-        fig_radar.update_layout(
-            **PLOT_CONFIG, height=300, title="Factor Profile",
-            polar=dict(
-                radialaxis=dict(visible=True, range=[0, 1]),
-            ),
-        )
+        fig_radar.update_layout(**layout, height=350, title="Factor Profile")
+        fig_radar.update_layout(polar=dict(
+            radialaxis=dict(visible=True, range=[0, 1])
+        ))
         st.plotly_chart(fig_radar, use_container_width=True)
 
-# ────────────────────────────────────────────────────────────────────────────
 # TAB 2: MARKET ANALYSIS
-# ────────────────────────────────────────────────────────────────────────────
 with tabs[1]:
-    col_mkt1, col_mkt2 = st.columns([2, 1])
+    months_short = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    monthly = data_hist.groupby("month").agg({
+        "demand": "mean",
+        "revenue": "sum"
+    }).reset_index()
+    monthly["month_name"] = monthly["month"].map({i: m for i, m in enumerate(months_short, 1)})
     
-    with col_mkt1:
-        months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-        monthly = hist_data.groupby("month").agg(sales=("sales","mean"), revenue=("revenue","sum")).reset_index()
-        monthly["name"] = monthly["month"].apply(lambda m: months[m-1])
-        
-        fig_month = make_subplots(specs=[[{"secondary_y":True}]])
-        fig_month.add_trace(
-            go.Bar(x=monthly["name"], y=monthly["sales"], marker_color="rgba(0,132,255,0.25)", marker_line_color=C_PRIMARY, name="Sales"),
-            secondary_y=False
-        )
-        fig_month.add_trace(
-            go.Scatter(x=monthly["name"], y=monthly["revenue"], line=dict(color=C_SUCCESS, width=2.5), marker=dict(size=6), name="Revenue"),
-            secondary_y=True
-        )
-        fig_month.update_layout(**PLOT_CONFIG, title="Monthly Trends", height=300)
-        st.plotly_chart(fig_month, use_container_width=True)
-        
-        # Heatmap
-        hm_data = hist_data.groupby(["month","weekday"])["sales"].mean().unstack()
-        hm_data.columns = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
-        hm_data.index = [months[m-1] for m in hm_data.index]
-        
-        fig_hm = px.imshow(hm_data.T, color_continuous_scale=[[0,"#0a0e1f"],[0.5,"#0084ff"],[1,"#00d4ff"]], title="Demand Heatmap")
-        fig_hm.update_layout(**PLOT_CONFIG, height=220)
-        st.plotly_chart(fig_hm, use_container_width=True)
-        
-        # Quarterly
-        fig_q = go.Figure()
-        for q in [1,2,3,4]:
-            q_data = hist_data[hist_data["quarter"]==q]["sales"]
-            fig_q.add_trace(go.Box(y=q_data, name=f"Q{q}"))
-        fig_q.update_layout(**PLOT_CONFIG, title="Quarterly Distribution", height=250)
-        st.plotly_chart(fig_q, use_container_width=True)
+    fig_monthly = make_subplots(specs=[[{"secondary_y": True}]])
+    fig_monthly.add_trace(
+        go.Bar(x=monthly["month_name"], y=monthly["demand"], name="Demand", marker_color=colors["primary"]),
+        secondary_y=False
+    )
+    fig_monthly.add_trace(
+        go.Scatter(x=monthly["month_name"], y=monthly["revenue"], name="Revenue", 
+                   line=dict(color=colors["secondary"], width=3), mode="lines+markers"),
+        secondary_y=True
+    )
+    fig_monthly.update_layout(**layout, title="Monthly Trends", height=350)
+    st.plotly_chart(fig_monthly, use_container_width=True)
     
-    with col_mkt2:
-        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-        peak_row = hist_data.loc[hist_data["sales"].idxmax()]
-        stats = [
-            ("Avg Daily", f"{hist_data['sales'].mean():.0f}"),
-            ("Peak Day", str(peak_row["date"].date())),
-            ("Peak Sales", f"{int(peak_row['sales'])}"),
-            ("Total Revenue", f"€{hist_data['revenue'].sum():,.0f}"),
-            ("Std Dev", f"±{hist_data['sales'].std():.1f}"),
-            ("Data Points", f"{len(hist_data):,}"),
-        ]
-        for label, val in stats:
-            st.markdown(f"<div style='display:flex; justify-content:space-between; font-size:0.8rem; padding:0.3rem 0; border-bottom:1px solid rgba(255,255,255,0.05);'><span style='color:#6b7585;'>{label}</span><span style='color:#e8eef5; font-family:monospace;'>{val}</span></div>", unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+    # Quarterly distribution
+    quarterly = data_hist.groupby("quarter")["demand"].apply(list).to_dict()
+    fig_box = go.Figure()
+    for q in [1, 2, 3, 4]:
+        fig_box.add_trace(go.Box(y=quarterly.get(q, []), name=f"Q{q}"))
+    fig_box.update_layout(**layout, title="Quarterly Distribution", height=300)
+    st.plotly_chart(fig_box, use_container_width=True)
 
-# ────────────────────────────────────────────────────────────────────────────
 # TAB 3: SCENARIOS
-# ────────────────────────────────────────────────────────────────────────────
 with tabs[2]:
     scenarios = {
-        "Baseline": [day_idx, month, quarter, dayofyear, temp, rain, sun, int(holiday), int(event), budget, tv, social, energy, competition, satisfaction, delivery],
-        "Best": [5, month, quarter, dayofyear, 22, 0, 10, 1, 1, min(800,budget*2), min(100,tv+30), min(10,social+2), max(50,energy-25), max(0,competition-0.3), min(10,satisfaction+1.5), min(1,delivery+0.08)],
-        "Worst": [1, month, quarter, dayofyear, 3, 40, 1, 0, 0, max(0,budget//3), max(0,tv-30), max(0,social-2), min(220,energy+35), min(1,competition+0.3), max(1,satisfaction-2), max(0.6,delivery-0.15)],
-        "Event": [5, month, quarter, dayofyear, temp, 0, sun, int(holiday), 1, min(800,budget*1.5), min(100,tv+25), min(10,social+3), energy, competition, min(10,satisfaction+0.5), delivery],
-        "Energy": [day_idx, month, quarter, dayofyear, temp, rain, sun, int(holiday), int(event), max(0,budget-100), tv, social, min(220,energy+60), min(1,competition+0.15), max(1,satisfaction-0.5), max(0.6,delivery-0.05)],
-        "Ads": [day_idx, month, quarter, dayofyear, temp, rain, sun, int(holiday), int(event), min(800,budget*2.5), min(100,tv+50), min(10,social+4), energy, competition, satisfaction, delivery],
+        "Baseline": input_data[0].tolist(),
+        "Best Case": [5, month, quarter, day_of_year, 20, 0, 10, 1, 1, 500, 70, 7, 80, 0.1, 9, 0.95],
+        "Worst Case": [1, month, quarter, day_of_year, 5, 40, 2, 0, 0, 100, 10, 2, 150, 0.8, 5, 0.7],
+        "Event Boost": [day_idx, month, quarter, day_of_year, temp, 0, sun, int(is_holiday), 1, min(600, ad_budget * 1.5), tv + 20, social + 2, energy, comp, satisfaction, delivery],
     }
     
-    scenario_names, scenario_sales, scenario_revenue = [], [], []
+    scenario_names = []
+    scenario_demands = []
+    scenario_revenues = []
+    
     for name, params in scenarios.items():
-        s = int(max(0, model.predict(scaler.transform(np.array([params])))[0]))
+        dem = int(max(0, model.predict(scaler.transform(np.array([params])))[0]))
+        rev = dem * price
         scenario_names.append(name)
-        scenario_sales.append(s)
-        scenario_revenue.append(s * price)
+        scenario_demands.append(dem)
+        scenario_revenues.append(rev)
     
-    colors_sc = [C_PRIMARY, C_SUCCESS, C_DANGER, "#ffd60a", C_WARNING, "#ff006e"]
+    col_scen1, col_scen2 = st.columns(2)
     
-    col_sc1, col_sc2 = st.columns([3, 2])
-    with col_sc1:
-        fig_sc = go.Figure(go.Bar(
-            x=scenario_names, y=scenario_sales, marker_color=colors_sc,
-            text=[str(s) for s in scenario_sales], textposition="outside"
+    with col_scen1:
+        fig_scen = go.Figure(go.Bar(
+            x=scenario_names, y=scenario_demands,
+            marker_color=[colors["primary"], colors["secondary"], colors["danger"], colors["warning"]]
         ))
-        fig_sc.update_layout(**PLOT_CONFIG, title="Scenario Comparison", height=320, showlegend=False)
-        st.plotly_chart(fig_sc, use_container_width=True)
+        fig_scen.update_layout(**layout, title="Demand by Scenario", height=300, showlegend=False)
+        st.plotly_chart(fig_scen, use_container_width=True)
     
-    with col_sc2:
-        fig_funnel = go.Figure(go.Funnel(
-            y=scenario_names, x=sorted(scenario_revenue, reverse=True),
-            marker_color=colors_sc
+    with col_scen2:
+        fig_rev = go.Figure(go.Funnel(
+            y=scenario_names, x=scenario_revenues,
+            marker=dict(color=[colors["primary"], colors["secondary"], colors["danger"], colors["warning"]])
         ))
-        fig_funnel.update_layout(**PLOT_CONFIG, title="Revenue Waterfall", height=320)
-        st.plotly_chart(fig_funnel, use_container_width=True)
+        fig_rev.update_layout(**layout, title="Revenue Comparison (EUR)", height=300)
+        st.plotly_chart(fig_rev, use_container_width=True)
     
-    sc_df = pd.DataFrame({
+    scen_df = pd.DataFrame({
         "Scenario": scenario_names,
-        "Sales": scenario_sales,
-        "Revenue": [f"€{r:,.0f}" for r in scenario_revenue],
-        "vs Baseline": [f"{s-scenario_sales[0]:+d}" for s in scenario_sales],
+        "Demand": scenario_demands,
+        "Revenue (EUR)": [f"{r:,.0f}" for r in scenario_revenues],
+        "Delta": [d - scenario_demands[0] for d in scenario_demands],
     })
-    st.dataframe(sc_df, use_container_width=True, hide_index=True)
+    st.dataframe(scen_df, use_container_width=True, hide_index=True)
 
-# ────────────────────────────────────────────────────────────────────────────
 # TAB 4: SIMULATION
-# ────────────────────────────────────────────────────────────────────────────
 with tabs[3]:
     col_sim_opts, col_sim_chart = st.columns([1, 3])
     
     with col_sim_opts:
-        sim_days = st.slider("Days", 7, 365, 60)
-        sim_noise = st.slider("Noise", 0, 30, 8)
-        trend_mode = st.selectbox("Trend", ["Neutral", "Growth", "Decline"])
-        show_mc = st.checkbox("Monte Carlo")
-        show_raw = st.checkbox("Raw Data")
+        st.markdown("#### Simulation Setup")
+        sim_days = st.slider("Days", 7, 365, 60, label_visibility="collapsed")
+        sim_noise = st.slider("Market Noise", 0, 25, 8, label_visibility="collapsed")
+        trend_opt = st.selectbox("Trend", ["Stable", "Growth +5%", "Decline -5%"], label_visibility="collapsed")
     
     with col_sim_chart:
-        trend_factor = {"Neutral":1.0, "Growth":1.08, "Decline":0.92}[trend_mode]
+        trend_factor = {"Stable": 1.0, "Growth +5%": 1.05, "Decline -5%": 0.95}[trend_opt]
         sim_dates = pd.date_range(datetime.date.today(), periods=sim_days)
-        rng_sim = np.random.default_rng(77)
-        sim_sales = [int(max(0, sales_pred * trend_factor + rng_sim.normal(0, sim_noise))) for _ in range(sim_days)]
+        sim_values = [int(max(0, demand * trend_factor + np.random.normal(0, sim_noise))) for _ in range(sim_days)]
         
         fig_sim = go.Figure()
-        if show_mc:
-            for seed in range(10):
-                rng_mc = np.random.default_rng(seed + 100)
-                mc_path = [int(max(0, sales_pred*trend_factor + rng_mc.normal(0, sim_noise*2))) for _ in range(sim_days)]
-                fig_sim.add_trace(go.Scatter(x=sim_dates, y=mc_path, mode="lines", line=dict(color="rgba(0,132,255,0.08)", width=0.8), showlegend=False))
-        
         fig_sim.add_trace(go.Scatter(
-            x=sim_dates, y=sim_sales, mode="lines",
-            line=dict(color=C_PRIMARY, width=2.5),
-            name="Forecast"
+            x=sim_dates, y=sim_values,
+            fill="tozeroy", line=dict(color=colors["primary"], width=2),
+            fillcolor="rgba(0, 132, 255, 0.1)"
         ))
-        fig_sim.add_hline(y=sales_pred, line_dash="dash", line_color="rgba(255,255,255,0.2)")
-        fig_sim.update_layout(**PLOT_CONFIG, title=f"{sim_days}-Day Simulation", height=350)
+        fig_sim.add_hline(y=demand, line_dash="dash", line_color="gray", 
+                         annotation_text=f"Baseline: {demand}")
+        fig_sim.update_layout(**layout, title=f"{sim_days}-Day Simulation", height=350)
         st.plotly_chart(fig_sim, use_container_width=True)
     
-    k1, k2, k3, k4 = st.columns(4)
-    k1.metric("Avg", f"{np.mean(sim_sales):.0f}")
-    k2.metric("Peak", f"{max(sim_sales)}")
-    k3.metric("Min", f"{min(sim_sales)}")
-    k4.metric("Total Rev.", f"€{sum(sim_sales)*price:,.0f}")
-    
-    if show_raw:
-        sim_df = pd.DataFrame({
-            "Date": [d.strftime("%d.%m") for d in sim_dates],
-            "Sales": sim_sales,
-            "Revenue": [f"€{s*price:,.0f}" for s in sim_sales],
-        })
-        st.dataframe(sim_df, use_container_width=True, hide_index=True)
+    col_k1, col_k2, col_k3, col_k4 = st.columns(4)
+    col_k1.metric("Avg", f"{np.mean(sim_values):.0f}")
+    col_k2.metric("Peak", f"{max(sim_values)}")
+    col_k3.metric("Min", f"{min(sim_values)}")
+    col_k4.metric("Total Rev", f"EUR {sum(sim_values) * price:,.0f}")
 
-# ────────────────────────────────────────────────────────────────────────────
-# TAB 5: RISK
-# ────────────────────────────────────────────────────────────────────────────
+# TAB 5: RISK ANALYSIS
 with tabs[4]:
-    col_risk1, col_risk2 = st.columns(2)
+    risk_indicators = {
+        "Demand Variance": min(100, abs(delta_pct) * 2),
+        "Capacity Load": min(100, int(demand / 1.5)),
+        "Competition": int(comp * 100),
+        "Weather Impact": int(rain / 60 * 100),
+        "Energy Cost": int(max(0, (energy - 100) / 80 * 100)),
+    }
     
-    with col_risk1:
-        st.subheader("Risk Indicators")
-        risks = {
-            "Demand": min(100, abs(delta_pct)*2),
-            "Capacity": min(100, int(sales_pred/1.5)),
-            "Competition": int(competition*100),
-            "Weather": int(rain/60*100),
-            "Energy": int(max(0, (energy-100)/120*100)),
-        }
-        for name, val in risks.items():
-            level = "Low" if val<40 else ("Med" if val<70 else "High")
-            color = C_SUCCESS if val<40 else (C_WARNING if val<70 else C_DANGER)
-            st.markdown(f"<div style='margin:0.5rem 0;'><div style='font-size:0.75rem; display:flex; justify-content:space-between; margin-bottom:0.2rem;'><span>{name}</span><span style='color:{color}; font-family:monospace;'>{val}% {level}</span></div><div style='width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;'><div style='width:{val}%; height:100%; background:linear-gradient(90deg, {color}, rgba(0,212,255,0.5));'></div></div></div>", unsafe_allow_html=True)
+    for risk_name, risk_val in risk_indicators.items():
+        color_risk = colors["secondary"] if risk_val < 50 else (colors["warning"] if risk_val < 75 else colors["danger"])
+        st.write(f"{risk_name}: {risk_val}%")
+        st.progress(risk_val / 100, text=f"{risk_val}%")
     
-    with col_risk2:
-        st.subheader("Recommendations")
-        alerts = []
-        if budget < 100:
-            alerts.append(("warning", "Low ad budget – increase spend"))
-        if competition > 0.6:
-            alerts.append(("danger", "High competition – differentiate"))
-        if rain > 30:
-            alerts.append(("warning", "Heavy rain – adjust logistics"))
-        if energy > 150:
-            alerts.append(("danger", "Energy crisis – review costs"))
-        if satisfaction < 6:
-            alerts.append(("danger", "Low satisfaction – urgent action"))
-        if not alerts:
-            alerts.append(("success", "All parameters optimal"))
+    st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
+    st.markdown("#### Sensitivity Analysis")
+    
+    sensitivity_params = {
+        "Ad Budget +30%": ad_budget * 1.3,
+        "Competition +0.2": comp + 0.2,
+        "Satisfaction +1": satisfaction + 1,
+        "Energy +30": energy + 30,
+    }
+    
+    sens_results = []
+    for param_name, param_val in sensitivity_params.items():
+        test_input = input_data[0].copy()
+        if "Ad Budget" in param_name:
+            test_input[9] = min(600, param_val)
+        elif "Competition" in param_name:
+            test_input[13] = min(1.0, param_val)
+        elif "Satisfaction" in param_name:
+            test_input[14] = min(10.0, param_val)
+        elif "Energy" in param_name:
+            test_input[12] = min(180, param_val)
         
-        for lvl, txt in alerts:
-            css_class = "alert-success" if lvl=="success" else ("alert-warning" if lvl=="warning" else "alert-danger")
-            st.markdown(f'<div class="alert-box {css_class}">{txt}</div>', unsafe_allow_html=True)
+        new_dem = int(max(0, model.predict(scaler.transform(np.array([test_input])))[0]))
+        delta = new_dem - demand
+        sens_results.append({"Parameter": param_name, "Delta": delta, "% Change": f"{delta/demand*100:+.1f}%"})
+    
+    sens_df = pd.DataFrame(sens_results)
+    st.dataframe(sens_df, use_container_width=True, hide_index=True)
 
-# ────────────────────────────────────────────────────────────────────────────
-# TAB 6: MODEL
-# ────────────────────────────────────────────────────────────────────────────
+# TAB 6: MODEL INFO
 with tabs[5]:
     col_m1, col_m2, col_m3, col_m4 = st.columns(4)
-    col_m1.metric("MAE", metrics["mae"])
-    col_m2.metric("RMSE", metrics["rmse"])
-    col_m3.metric("MAPE", f"{metrics['mape']}%")
-    col_m4.metric("R² Score", metrics["r2"])
+    col_m1.metric("Training Samples", len(data_hist))
+    col_m2.metric("Features", len(features))
+    col_m3.metric("Hidden Layers", "2")
+    col_m4.metric("Parameters", "~12K")
     
-    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+    st.markdown("#### Architecture")
+    arch_data = {
+        "Layer": ["Input", "Hidden 1", "Hidden 2", "Output"],
+        "Size": [16, 128, 64, 1],
+        "Activation": ["—", "ReLU", "ReLU", "Linear"]
+    }
+    st.dataframe(pd.DataFrame(arch_data), use_container_width=True, hide_index=True)
     
-    col_arch, col_imp = st.columns(2)
-    with col_arch:
-        st.subheader("Architecture")
-        arch = pd.DataFrame({
-            "Layer": ["Input", "Hidden 1", "Hidden 2", "Hidden 3", "Output"],
-            "Neurons": [16, 128, 64, 32, 1],
-            "Activation": ["-", "ReLU", "ReLU", "ReLU", "Linear"],
-        })
-        st.dataframe(arch, use_container_width=True, hide_index=True)
+    st.markdown("#### Performance Metrics")
+    perf_data = {
+        "Metric": ["MAE", "RMSE", "MAPE", "R² Score"],
+        "Value": [metrics["mae"], metrics["rmse"], f"{metrics['mape']}%", metrics["r2"]]
+    }
+    st.dataframe(pd.DataFrame(perf_data), use_container_width=True, hide_index=True)
     
-    with col_imp:
-        st.subheader("Feature Importance")
-        feat_imp = pd.DataFrame({
-            "Feature": ["Event", "Holiday", "Budget", "Weekday", "Social", "Satisfaction", "TV", "Month", "Rain", "Delivery", "Temp", "Energy", "Competition", "Quarter", "Dayofyear", "Sun"],
-            "Importance": [0.20, 0.15, 0.13, 0.11, 0.09, 0.08, 0.07, 0.06, 0.05, 0.05, 0.04, 0.03, 0.03, 0.02, 0.02, 0.02],
-        }).sort_values("Importance", ascending=True)
-        
-        fig_imp = px.bar(feat_imp, x="Importance", y="Feature", orientation="h",
-                         color="Importance", color_continuous_scale=[[0,"#141d2e"],[1,"#0084ff"]])
-        fig_imp.update_layout(**PLOT_CONFIG, height=320, showlegend=False)
-        st.plotly_chart(fig_imp, use_container_width=True)
-    
-    st.subheader("Validation")
-    test_size = min(200, len(hist_data))
-    test_data = hist_data.tail(test_size)
-    test_pred = model.predict(scaler.transform(test_data[features].values))
+    # Validation chart
+    val_data = data_hist.tail(200).copy()
+    val_pred = model.predict(scaler.transform(val_data[features].values))
     
     fig_val = go.Figure()
-    fig_val.add_trace(go.Scatter(x=test_data["date"], y=test_data["sales"], mode="lines", name="Actual", line=dict(color=C_PRIMARY)))
-    fig_val.add_trace(go.Scatter(x=test_data["date"], y=test_pred.astype(int), mode="lines", name="Predicted", line=dict(color=C_SUCCESS, dash="dot")))
-    fig_val.update_layout(**PLOT_CONFIG, title=f"Last {test_size} Days", height=280)
+    fig_val.add_trace(go.Scatter(x=val_data["date"], y=val_data["demand"], name="Actual", line=dict(color=colors["primary"])))
+    fig_val.add_trace(go.Scatter(x=val_data["date"], y=val_pred, name="Predicted", line=dict(color=colors["secondary"], dash="dot")))
+    fig_val.update_layout(**layout, title="Validation: Actual vs Predicted", height=300)
     st.plotly_chart(fig_val, use_container_width=True)
 
-# ══════════════════════════════════════════════════════════════════════════════
-# FOOTER
-# ══════════════════════════════════════════════════════════════════════════════
+st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
 st.markdown("""
-<div class="footer">
-OpenBrain Intelligence Platform · Enterprise Grade Demand Forecasting · 2024-2026
+<div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 3rem;">
+    OpenBrain Neural Demand Predictor | Enterprise Grade | Real-time Analysis | © 2024
 </div>
 """, unsafe_allow_html=True)
